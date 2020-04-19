@@ -16,10 +16,12 @@
  */
 package org.openubl.keys;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import org.keycloak.crypto.KeyWrapper;
 
 import java.util.List;
 
+@RegisterForReflection
 public interface KeyProvider {
 
     List<KeyWrapper> getKeys();
