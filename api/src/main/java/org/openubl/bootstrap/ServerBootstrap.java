@@ -26,6 +26,7 @@ import org.openubl.models.utils.DefaultKeyProviders;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import java.util.Optional;
 
 /**
@@ -58,6 +59,7 @@ public class ServerBootstrap {
         }
     }
 
+    @Transactional
     private void createMasterOrganization() {
         logger.info("Initializing Admin Organization " + OrganizationModel.MASTER_ID);
 

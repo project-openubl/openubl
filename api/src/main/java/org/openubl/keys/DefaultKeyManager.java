@@ -147,7 +147,8 @@ public class DefaultKeyManager implements KeyManager {
         if (providers == null) {
             providers = new LinkedList<>();
 
-            List<ComponentModel> components = new LinkedList<>(componentProvider.getComponents(organization, organization.getId(), KeyProvider.class.getName()));
+            List<ComponentModel> components1 = componentProvider.getComponents(organization, organization.getId(), KeyProvider.class.getName());
+            List<ComponentModel> components = new LinkedList<>(components1);
             components.sort(new ProviderComparator());
 
             for (ComponentModel c : components) {

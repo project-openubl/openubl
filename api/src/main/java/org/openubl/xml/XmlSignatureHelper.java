@@ -63,29 +63,6 @@ public class XmlSignatureHelper {
         return dbf.newDocumentBuilder();
     }
 
-    public static void transformNonTextNodeToOutputStream(Node node, OutputStream os, boolean omitXmlDeclaration, String encoding)
-            throws Exception { //NOPMD
-        // previously we used javax.xml.transform.Transformer, however the JDK xalan implementation did not work correctly with a specified encoding
-        // therefore we switched to DOMImplementationLS
-        if (encoding == null) {
-            encoding = "UTF-8";
-        }
-        DOMImplementationRegistry domImplementationRegistry = DOMImplementationRegistry.newInstance();
-        DOMImplementationLS domImplementationLS = (DOMImplementationLS) domImplementationRegistry.getDOMImplementation("LS");
-        LSOutput lsOutput = domImplementationLS.createLSOutput();
-        lsOutput.setEncoding(encoding);
-        lsOutput.setByteStream(os);
-        LSSerializer lss = domImplementationLS.createLSSerializer();
-        lss.getDomConfig().setParameter("xml-declaration", !omitXmlDeclaration);
-        lss.write(node, lsOutput);
-    }
-
-    public static byte[] getBytesFromDocument(Document outputDoc) throws Exception {
-        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-        XmlSignatureHelper.transformNonTextNodeToOutputStream(outputDoc, outStream, false, "UTF-8");
-        return outStream.toByteArray();
-    }
-
     public static Document convertStringToXMLDocument(String xmlString) throws ParserConfigurationException, IOException, SAXException {
         //API to obtain DOM Document instance
         DocumentBuilder builder = XmlSignatureHelper.newDocumentBuilder(true);
