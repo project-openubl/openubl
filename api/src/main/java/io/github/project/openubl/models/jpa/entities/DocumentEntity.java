@@ -1,37 +1,49 @@
 package io.github.project.openubl.models.jpa.entities;
 
+import io.github.project.openubl.models.jpa.entities.OrganizationEntity;
+import io.quarkus.hibernate.orm.panache.PanacheEntity;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
-@Cacheable
 @Entity
 @Table(name = "DOCUMENT")
-public class DocumentEntity {
-
-    @Id
-    @Access(AccessType.PROPERTY)// Relationships often fetch id, but not entity.  This avoids an extra SQL
-    @Column(name = "ID", length = 36)
-    private String id;
+@Cacheable
+public class DocumentEntity extends PanacheEntity {
 
     @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(foreignKey = @ForeignKey, name = "organization_id")
+    public OrganizationEntity organization;
+
     @Column(name = "XML_SENDER_ID")
-    private String xmlSenderID;
+    public Long xmlSenderID;
 
-    public String getId() {
-        return id;
+    @Column(name = "XML_SENDER_SUNAT_STATUS")
+    public String xmlSenderSUNATStatus;
+
+    public OrganizationEntity getOrganization() {
+        return organization;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setOrganization(OrganizationEntity organization) {
+        this.organization = organization;
     }
 
-    public String getXmlSenderID() {
+    public Long getXmlSenderID() {
         return xmlSenderID;
     }
 
-    public void setXmlSenderID(String xmlSenderID) {
+    public void setXmlSenderID(Long xmlSenderID) {
         this.xmlSenderID = xmlSenderID;
     }
 
+    public String getXmlSenderSUNATStatus() {
+        return xmlSenderSUNATStatus;
+    }
+
+    public void setXmlSenderSUNATStatus(String xmlSenderSUNATStatus) {
+        this.xmlSenderSUNATStatus = xmlSenderSUNATStatus;
+    }
 }
 

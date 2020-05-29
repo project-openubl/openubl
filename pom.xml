@@ -21,6 +21,7 @@
         <surefire-plugin.version>2.22.1</surefire-plugin.version>
 
         <bouncycastle.version>1.64</bouncycastle.version>
+        <docker-plugin.version>0.33.0</docker-plugin.version>
     </properties>
     <dependencyManagement>
         <dependencies>

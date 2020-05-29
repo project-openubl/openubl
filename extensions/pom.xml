@@ -15,6 +15,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>bouncycastle</module>
+<!--        <module>bouncycastle</module>-->
     </modules>
 </project>
