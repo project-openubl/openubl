@@ -1,6 +1,6 @@
 package io.github.project.openubl.models.jpa.entities;
 
-import io.github.project.openubl.models.jpa.entities.OrganizationEntity;
+import io.github.project.openubl.models.IndexStatusType;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 
 import javax.persistence.*;
@@ -13,14 +13,21 @@ public class DocumentEntity extends PanacheEntity {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(foreignKey = @ForeignKey, name = "organization_id")
+    @JoinColumn(foreignKey = @ForeignKey, name = "ORGANIZATION_ID")
     public OrganizationEntity organization;
 
-    @Column(name = "XML_SENDER_ID")
-    public Long xmlSenderID;
+    @Column(name = "FILE_ID")
+    public String fileId;
 
-    @Column(name = "XML_SENDER_SUNAT_STATUS")
-    public String xmlSenderSUNATStatus;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "INDEX_STATUS")
+    public IndexStatusType indexStatus;
+
+    @Column(name = "DOCUMENT_TYPE")
+    public String documentType;
+
+    @Column(name = "DOCUMENT_ID")
+    public String documentID;
 
     public OrganizationEntity getOrganization() {
         return organization;
@@ -30,20 +37,37 @@ public class DocumentEntity extends PanacheEntity {
         this.organization = organization;
     }
 
-    public Long getXmlSenderID() {
-        return xmlSenderID;
+    public String getFileId() {
+        return fileId;
     }
 
-    public void setXmlSenderID(Long xmlSenderID) {
-        this.xmlSenderID = xmlSenderID;
+    public void setFileId(String fileId) {
+        this.fileId = fileId;
     }
 
-    public String getXmlSenderSUNATStatus() {
-        return xmlSenderSUNATStatus;
+    public IndexStatusType getIndexStatus() {
+        return indexStatus;
     }
 
-    public void setXmlSenderSUNATStatus(String xmlSenderSUNATStatus) {
-        this.xmlSenderSUNATStatus = xmlSenderSUNATStatus;
+    public void setIndexStatus(IndexStatusType indexStatus) {
+        this.indexStatus = indexStatus;
     }
+
+    public String getDocumentType() {
+        return documentType;
+    }
+
+    public void setDocumentType(String documentType) {
+        this.documentType = documentType;
+    }
+
+    public String getDocumentID() {
+        return documentID;
+    }
+
+    public void setDocumentID(String documentID) {
+        this.documentID = documentID;
+    }
+
 }
 

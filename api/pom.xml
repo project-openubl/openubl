@@ -277,9 +277,12 @@
                                             <QUARKUS_ARTEMIS_USERNAME>quarkus</QUARKUS_ARTEMIS_USERNAME>
                                             <QUARKUS_ARTEMIS_PASSWORD>quarkus</QUARKUS_ARTEMIS_PASSWORD>
                                             <OPENUBL_EVENT_MANAGER>jms</OPENUBL_EVENT_MANAGER>
-                                            <OPENUBL_EVENT_MANAGER_JMS_CALLBACKQUEUE>callbackQueue</OPENUBL_EVENT_MANAGER_JMS_CALLBACKQUEUE>
+                                            <OPENUBL_EVENT_MANAGER_JMS_CALLBACKQUEUE>callbackQueue
+                                            </OPENUBL_EVENT_MANAGER_JMS_CALLBACKQUEUE>
                                             <OPENUBL_STORAGE_TYPE>filesystem</OPENUBL_STORAGE_TYPE>
-                                            <OPENUBL_SUNAT_URL1>https://e-beta.sunat.gob.pe/ol-ti-itcpfegem-beta/billService</OPENUBL_SUNAT_URL1>
+                                            <OPENUBL_SUNAT_URL1>
+                                                https://e-beta.sunat.gob.pe/ol-ti-itcpfegem-beta/billService
+                                            </OPENUBL_SUNAT_URL1>
                                         </env>
                                         <ports>
                                             <port>8280:8080</port>

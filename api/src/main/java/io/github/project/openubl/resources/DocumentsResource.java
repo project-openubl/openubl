@@ -16,71 +16,106 @@
  */
 package io.github.project.openubl.resources;
 
-import io.github.project.openubl.managers.DocumentsManager;
-import io.github.project.openubl.models.DocumentProvider;
-import io.github.project.openubl.models.KeyManager;
-import io.github.project.openubl.models.OrganizationModel;
-import io.github.project.openubl.models.OrganizationProvider;
+import io.github.project.openubl.events.EventManager;
+import io.github.project.openubl.events.EventProvider;
+import io.github.project.openubl.events.EventProviderLiteral;
+import io.github.project.openubl.files.FileType;
+import io.github.project.openubl.files.FilesManager;
+import io.github.project.openubl.models.*;
 import io.github.project.openubl.models.jpa.entities.DocumentEntity;
 import io.github.project.openubl.representations.idm.DocumentRepresentation;
-import io.github.project.openubl.resources.client.XMLBuilderClient;
 import io.github.project.openubl.utils.EntityToRepresentation;
-import io.github.project.openubl.xmlbuilderlib.models.input.standard.invoice.InvoiceInputModel;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.keycloak.common.util.PemUtils;
-import org.keycloak.crypto.Algorithm;
-import org.keycloak.crypto.KeyUse;
-import org.keycloak.crypto.KeyWrapper;
+import io.github.project.openubl.xmlsender.idm.ErrorRepresentation;
+import org.apache.commons.io.IOUtils;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.resteasy.plugins.providers.multipart.InputPart;
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.cert.X509Certificate;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Transactional
 @Path("/organizations/{" + DocumentsResource.ORGANIZATION_ID + "}/documents")
 @Consumes(MediaType.APPLICATION_JSON)
 public class DocumentsResource {
 
-    static final String SIGN_REFERENCE_ID = "Project-OpenUBL";
     static final String ORGANIZATION_ID = "organizationId";
+
 
     @Inject
     OrganizationProvider organizationProvider;
 
     @Inject
-    KeyManager keystore;
-
-    @Inject
-    DocumentsManager documentsManager;
-
-    @Inject
     DocumentProvider documentProvider;
 
     @Inject
-    @RestClient
-    XMLBuilderClient xmlBuilderClient;
+    FilesManager filesManager;
 
-    private KeyManager.ActiveRsaKey getActiveRsaKey(OrganizationModel organization) {
-        KeyWrapper key;
-        if (organization.getUseCustomCertificates()) {
-            key = keystore.getActiveKey(organization, KeyUse.SIG, Algorithm.RS256);
-        } else {
-            OrganizationModel masterOrganization = organizationProvider
-                    .getOrganizationById(OrganizationModel.MASTER_ID)
-                    .orElseThrow(() -> new IllegalArgumentException("Master organization not found"));
-            key = keystore.getActiveKey(masterOrganization, KeyUse.SIG, Algorithm.RS256);
+    @Inject
+    EventManager eventManager;
+
+    @POST
+    @Path("/")
+    @Consumes("multipart/form-data")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response uploadDocument(
+            @PathParam(ORGANIZATION_ID) String organizationId,
+            MultipartFormDataInput input
+    ) {
+        OrganizationModel organization = organizationProvider.getOrganizationById(organizationId).orElseThrow(() -> new NotFoundException("Organization not found"));
+        byte[] xmlFile = null;
+
+        Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
+        List<InputPart> fileInputParts = uploadForm.get("file");
+        if (fileInputParts == null) {
+            ErrorRepresentation error = new ErrorRepresentation("Form[file] is required");
+            return Response.status(Response.Status.BAD_REQUEST).entity(error).build();
         }
-        return new KeyManager.ActiveRsaKey(key.getKid(), (PrivateKey) key.getPrivateKey(), (PublicKey) key.getPublicKey(), key.getCertificate());
+
+        try {
+            for (InputPart inputPart : fileInputParts) {
+                InputStream fileInputStream = inputPart.getBody(InputStream.class, null);
+                xmlFile = IOUtils.toByteArray(fileInputStream);
+            }
+        } catch (IOException e) {
+            throw new BadRequestException("Could not extract required data from upload/form");
+        }
+
+        if (xmlFile == null || xmlFile.length == 0) {
+            ErrorRepresentation error = new ErrorRepresentation("Form[file] is empty");
+            return Response.status(Response.Status.BAD_REQUEST).entity(error).build();
+        }
+
+        // Persist file
+        String fileID = filesManager.createFile(xmlFile, UUID.randomUUID().toString(), FileType.XML);
+        if (fileID == null) {
+            ErrorRepresentation error = new ErrorRepresentation("Error while persisting file");
+            return Response.status(Response.Status.BAD_REQUEST).entity(error).build();
+        }
+
+        // Persist in DB
+        DocumentEntity documentEntity = documentProvider.addDocument(organization, fileID);
+
+        // Fire event
+        eventManager.fireEventDocumentCreated(organization, documentEntity);
+
+        return Response.status(Response.Status.OK)
+                .entity(EntityToRepresentation.toRepresentation(documentEntity))
+                .build();
     }
 
     @GET
-    @Path("/get/{documentId}")
+    @Path("/{documentId}")
     @Produces(MediaType.APPLICATION_JSON)
     public DocumentRepresentation getDocument(
             @PathParam(ORGANIZATION_ID) String organizationId,
@@ -94,28 +129,6 @@ public class DocumentsResource {
         }
 
         return EntityToRepresentation.toRepresentation(document.get());
-    }
-
-    @POST
-    @Path("/create/invoice")
-    @Produces(MediaType.APPLICATION_JSON)
-    public DocumentRepresentation createInvoice(
-            @PathParam(ORGANIZATION_ID) String organizationId,
-            @NotNull InvoiceInputModel input
-    ) {
-        OrganizationModel organization = organizationProvider.getOrganizationById(organizationId).orElseThrow(() -> new NotFoundException("Organization not found"));
-        KeyManager.ActiveRsaKey activeRsaKey = getActiveRsaKey(organization);
-
-        X509Certificate certificate = activeRsaKey.getCertificate();
-        PrivateKey privateKey = activeRsaKey.getPrivateKey();
-
-        String privateRsaKeyPem = PemUtils.encodeKey(privateKey);
-        String certificatePem = PemUtils.encodeCertificate(certificate);
-
-        byte[] xml = xmlBuilderClient.createInvoice(privateRsaKeyPem, certificatePem, input);
-        DocumentEntity document = documentsManager.createDocument(organization, xml);
-
-        return EntityToRepresentation.toRepresentation(document);
     }
 
 }
