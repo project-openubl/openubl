@@ -16,11 +16,11 @@
  */
 package io.github.project.openubl.models.utils;
 
-import org.keycloak.common.util.MultivaluedHashMap;
 import io.github.project.openubl.keys.KeyProvider;
 import io.github.project.openubl.keys.component.ComponentModel;
 import io.github.project.openubl.models.ComponentProvider;
 import io.github.project.openubl.models.OrganizationModel;
+import org.keycloak.common.util.MultivaluedHashMap;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;

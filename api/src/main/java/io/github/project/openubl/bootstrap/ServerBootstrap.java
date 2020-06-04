@@ -1,13 +1,13 @@
 /**
  * Copyright 2019 Project OpenUBL, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
- *
+ * <p>
  * Licensed under the Eclipse Public License - v 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,12 +16,11 @@
  */
 package io.github.project.openubl.bootstrap;
 
-import io.github.project.openubl.models.OrganizationModel;
+import io.github.project.openubl.models.*;
 import io.github.project.openubl.models.utils.DefaultKeyProviders;
 import io.quarkus.runtime.StartupEvent;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
-import io.github.project.openubl.models.OrganizationProvider;
-import io.github.project.openubl.models.OrganizationType;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -42,10 +41,46 @@ public class ServerBootstrap {
     private static final Logger logger = Logger.getLogger(ServerBootstrap.class);
 
     @Inject
+    WSTemplateProvider wsTemplateProvider;
+
+    @Inject
     DefaultKeyProviders defaultKeyProviders;
 
     @Inject
     OrganizationProvider organizationProvider;
+
+
+    @ConfigProperty(name = "openubl.ws.templates.sunat-beta.url-factura-electronica")
+    String sunatBetaURLFactura;
+
+    @ConfigProperty(name = "openubl.ws.templates.sunat-beta.url-guia-remision")
+    String sunatBetaURLGuiaRemision;
+
+    @ConfigProperty(name = "openubl.ws.templates.sunat-beta.url-percepcion-retencion")
+    String sunatBetaURLPercepcionRetencion;
+
+    @ConfigProperty(name = "openubl.ws.templates.sunat-prod.url-factura-electronica")
+    String sunatProdURLFactura;
+
+    @ConfigProperty(name = "openubl.ws.templates.sunat-prod.url-guia-remision")
+    String sunatProdURLGuiaRemision;
+
+    @ConfigProperty(name = "openubl.ws.templates.sunat-prod.url-percepcion-retencion")
+    String sunatProdURLPercepcionRetencion;
+
+
+    @ConfigProperty(name = "openubl.organization.master.ruc")
+    String orgDemoRuc;
+
+    @ConfigProperty(name = "openubl.organization.master.razon-social")
+    String orgDemoRazonSocial;
+
+    @ConfigProperty(name = "openubl.organization.master.sunat-username")
+    String orgDemoSunatUsername;
+
+    @ConfigProperty(name = "openubl.organization.master.sunat-password")
+    String orgDemoSunatPassword;
+
 
     void onStart(@Observes StartupEvent ev) {
         logger.info("Server Bootstrap...");
@@ -53,20 +88,57 @@ public class ServerBootstrap {
     }
 
     private void bootstrap() {
-        Optional<OrganizationModel> organization = organizationProvider.getOrganizationById(OrganizationModel.MASTER_ID);
-        if (organization.isEmpty()) {
+        // Create default templates
+        Optional<WSTemplateModel> betaWSTemplate = wsTemplateProvider.getById(WSTemplateProvider.SUNAT_BETA);
+        if (!betaWSTemplate.isPresent()) {
+            createTemplate(WSTemplateProvider.SUNAT_BETA, sunatBetaURLFactura, sunatBetaURLGuiaRemision, sunatBetaURLPercepcionRetencion);
+        }
+        Optional<WSTemplateModel> prodWSTemplate = wsTemplateProvider.getById(WSTemplateProvider.SUNAT_PROD);
+        if (!prodWSTemplate.isPresent()) {
+            createTemplate(WSTemplateProvider.SUNAT_PROD, sunatProdURLFactura, sunatProdURLGuiaRemision, sunatProdURLPercepcionRetencion);
+        }
+
+        // Create Default Organizations
+        Optional<OrganizationModel> masterOrg = organizationProvider.getOrganizationById(OrganizationModel.MASTER_ID);
+        if (masterOrg.isEmpty()) {
             createMasterOrganization();
         }
+    }
+
+    @Transactional
+    private void createTemplate(String templateId, String facturaUrl, String guiaUrl, String percepcionRetencionUrl) {
+        WSTemplateModel.MinData templateData = new WSTemplateModel.MinData();
+        templateData.setSunatUrlFacturaElectronica(facturaUrl);
+        templateData.setSunatUrlGuiaRemision(guiaUrl);
+        templateData.setSunatUrlPercepcionRetencion(percepcionRetencionUrl);
+
+        wsTemplateProvider.add(templateId, templateId, templateData);
     }
 
     @Transactional
     private void createMasterOrganization() {
         logger.info("Initializing Admin Organization " + OrganizationModel.MASTER_ID);
 
-        OrganizationModel organization = organizationProvider.addOrganization(OrganizationModel.MASTER_ID, OrganizationModel.MASTER_ID, OrganizationType.master);
+        // Settings
+        WSTemplateModel wsTemplate = wsTemplateProvider
+                .getById(WSTemplateProvider.SUNAT_BETA)
+                .orElseThrow(() -> new IllegalStateException("Template name=" + WSTemplateProvider.SUNAT_BETA + " not found"));
+        OrganizationSettingsModel.MinData orgSettingsMinData = new OrganizationSettingsModel.MinData();
+        orgSettingsMinData.setRuc(orgDemoRuc);
+        orgSettingsMinData.setRazonSocial(orgDemoRazonSocial);
+        orgSettingsMinData.setSunatUsername(orgDemoSunatUsername);
+        orgSettingsMinData.setSunatPassword(orgDemoSunatPassword);
+        orgSettingsMinData.setSunatUrlFacturaElectronica(wsTemplate.getSunatUrlFacturaElectronica());
+        orgSettingsMinData.setSunatUrlGuiaRemision(wsTemplate.getSunatUrlGuiaRemision());
+        orgSettingsMinData.setSunatUrlPercepcionRetencion(wsTemplate.getSunatUrlPercepcionRetencion());
+
+
+        OrganizationModel organization = organizationProvider.addOrganization(OrganizationModel.MASTER_ID, OrganizationModel.MASTER_ID, OrganizationType.master, orgSettingsMinData);
         organization.setUseCustomCertificates(true);
+
 
         defaultKeyProviders.createProviders(organization);
         logger.info("Default key providers for Admin Organization " + OrganizationModel.MASTER_ID + " have been created");
     }
+
 }

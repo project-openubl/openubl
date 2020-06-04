@@ -1,13 +1,13 @@
 /**
  * Copyright 2019 Project OpenUBL, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
- *
+ * <p>
  * Licensed under the Eclipse Public License - v 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,38 +16,39 @@
  */
 package io.github.project.openubl.models.utils;
 
+import io.github.project.openubl.keys.component.ComponentModel;
 import io.github.project.openubl.keys.component.utils.ComponentUtil;
+import io.github.project.openubl.keys.provider.ProviderConfigProperty;
+import io.github.project.openubl.models.OrganizationModel;
+import io.github.project.openubl.models.OrganizationSettingsModel;
 import io.github.project.openubl.representations.idm.OrganizationRepresentation;
 import org.keycloak.common.util.MultivaluedHashMap;
 import org.keycloak.representations.idm.ComponentRepresentation;
-import io.github.project.openubl.keys.component.ComponentModel;
-import io.github.project.openubl.keys.provider.ProviderConfigProperty;
-import io.github.project.openubl.models.OrganizationModel;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.util.*;
 
+@ApplicationScoped
 public class RepresentationToModel {
 
-    private RepresentationToModel() {
-        // Just a util class
-    }
-
-    public static void updateOrganization(OrganizationRepresentation rep, OrganizationModel model) {
+    public void updateOrganization(OrganizationRepresentation rep, OrganizationModel model) {
         if (rep.getName() != null) {
             model.setName(rep.getName());
         }
-
         if (rep.getDescription() != null) {
             model.setDescription(rep.getDescription());
         }
-
         if (rep.getUseMasterKeys() != null) {
             model.setUseCustomCertificates(rep.getUseMasterKeys());
         }
 
+        // Settings
+//        OrganizationSettingsModel modelSettings = organizationSettingsProvider.getSettings(model).orElseThrow(IllegalAccessError::new);
+
     }
 
-    public static ComponentModel toModel(ComponentRepresentation rep) {
+    public ComponentModel toModel(ComponentRepresentation rep) {
         ComponentModel model = new ComponentModel();
         model.setId(rep.getId());
         model.setParentId(rep.getParentId());
@@ -80,7 +81,7 @@ public class RepresentationToModel {
         return model;
     }
 
-    public static void updateComponent(ComponentRepresentation rep, ComponentModel component, boolean internal, ComponentUtil componentUtil) {
+    public void updateComponent(ComponentRepresentation rep, ComponentModel component, boolean internal, ComponentUtil componentUtil) {
         if (rep.getName() != null) {
             component.setName(rep.getName());
         }

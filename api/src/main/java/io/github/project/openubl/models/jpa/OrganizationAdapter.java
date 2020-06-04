@@ -16,10 +16,11 @@
  */
 package io.github.project.openubl.models.jpa;
 
-import io.github.project.openubl.models.jpa.entities.OrganizationEntity;
 import io.github.project.openubl.models.ModelType;
 import io.github.project.openubl.models.OrganizationModel;
+import io.github.project.openubl.models.OrganizationSettingsModel;
 import io.github.project.openubl.models.OrganizationType;
+import io.github.project.openubl.models.jpa.entities.OrganizationEntity;
 
 import javax.persistence.EntityManager;
 
@@ -83,5 +84,10 @@ public class OrganizationAdapter implements OrganizationModel, JpaModel<Organiza
     @Override
     public void setUseCustomCertificates(boolean useCustomCertificates) {
         organization.setUseCustomCertificates(useCustomCertificates);
+    }
+
+    @Override
+    public OrganizationSettingsModel getSettings() {
+        return new OrganizationSettingsAdapter(organization.getSettings());
     }
 }

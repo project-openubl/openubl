@@ -24,9 +24,9 @@ public interface OrganizationProvider {
     /**
      * Used for create master organization
      */
-    OrganizationModel addOrganization(String id, String name, OrganizationType type);
+    OrganizationModel addOrganization(String id, String name, OrganizationType type, OrganizationSettingsModel.MinData data);
 
-    OrganizationModel addOrganization(String name, OrganizationType type);
+    OrganizationModel addOrganization(String name, OrganizationType type, OrganizationSettingsModel.MinData data);
 
     Optional<OrganizationModel> getOrganizationById(String id);
 

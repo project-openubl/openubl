@@ -16,15 +16,15 @@
  */
 package io.github.project.openubl.models.jpa;
 
+import io.github.project.openubl.keys.component.ComponentFactory;
+import io.github.project.openubl.keys.component.ComponentModel;
 import io.github.project.openubl.keys.component.utils.ComponentUtil;
+import io.github.project.openubl.models.ComponentProvider;
+import io.github.project.openubl.models.OrganizationModel;
 import io.github.project.openubl.models.jpa.entities.ComponentConfigEntity;
 import io.github.project.openubl.models.jpa.entities.ComponentEntity;
 import io.github.project.openubl.models.jpa.entities.OrganizationEntity;
 import org.keycloak.common.util.MultivaluedHashMap;
-import io.github.project.openubl.keys.component.ComponentFactory;
-import io.github.project.openubl.keys.component.ComponentModel;
-import io.github.project.openubl.models.ComponentProvider;
-import io.github.project.openubl.models.OrganizationModel;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;

@@ -1,9 +1,10 @@
 package io.github.project.openubl.models.jpa;
 
 import io.github.project.openubl.models.DocumentProvider;
-import io.github.project.openubl.models.jpa.entities.DocumentEntity;
 import io.github.project.openubl.models.OrganizationModel;
+import io.github.project.openubl.models.jpa.entities.DocumentEntity;
 import io.github.project.openubl.models.jpa.entities.OrganizationEntity;
+import io.github.project.openubl.models.jpa.repositories.DocumentRepository;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;

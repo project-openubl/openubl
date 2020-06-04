@@ -16,18 +16,16 @@
  */
 package io.github.project.openubl.resources;
 
+import io.github.project.openubl.files.exceptions.StorageException;
 import io.github.project.openubl.managers.DocumentsManager;
-import io.github.project.openubl.models.DocumentProvider;
-import io.github.project.openubl.models.KeyManager;
-import io.github.project.openubl.models.OrganizationModel;
-import io.github.project.openubl.models.OrganizationProvider;
+import io.github.project.openubl.models.*;
 import io.github.project.openubl.models.jpa.entities.DocumentEntity;
 import io.github.project.openubl.representations.idm.DocumentRepresentation;
-import io.github.project.openubl.resources.client.XMLBuilderClient;
-import io.github.project.openubl.utils.EntityToRepresentation;
+import io.github.project.openubl.models.utils.EntityToRepresentation;
+import io.github.project.openubl.xml.XMLProvider;
+import io.github.project.openubl.xmlbuilderlib.models.input.common.DireccionInputModel;
+import io.github.project.openubl.xmlbuilderlib.models.input.common.ProveedorInputModel;
 import io.github.project.openubl.xmlbuilderlib.models.input.standard.invoice.InvoiceInputModel;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.keycloak.common.util.PemUtils;
 import org.keycloak.crypto.Algorithm;
 import org.keycloak.crypto.KeyUse;
 import org.keycloak.crypto.KeyWrapper;
@@ -47,14 +45,13 @@ import java.util.Optional;
 @Consumes(MediaType.APPLICATION_JSON)
 public class DocumentsResource {
 
-    static final String SIGN_REFERENCE_ID = "Project-OpenUBL";
     static final String ORGANIZATION_ID = "organizationId";
 
     @Inject
-    OrganizationProvider organizationProvider;
+    KeyManager keystore;
 
     @Inject
-    KeyManager keystore;
+    OrganizationProvider organizationProvider;
 
     @Inject
     DocumentsManager documentsManager;
@@ -63,8 +60,7 @@ public class DocumentsResource {
     DocumentProvider documentProvider;
 
     @Inject
-    @RestClient
-    XMLBuilderClient xmlBuilderClient;
+    XMLProvider xmlProvider;
 
     private KeyManager.ActiveRsaKey getActiveRsaKey(OrganizationModel organization) {
         KeyWrapper key;
@@ -96,6 +92,23 @@ public class DocumentsResource {
         return EntityToRepresentation.toRepresentation(document.get());
     }
 
+    private void enrichInput(OrganizationModel organization, ProveedorInputModel input) {
+        OrganizationSettingsModel settings = organization.getSettings();
+
+        input.setRuc(settings.getRuc());
+        input.setRazonSocial(settings.getRazonSocial());
+        input.setNombreComercial(settings.getNombreComercial());
+
+        input.setDireccion(new DireccionInputModel());
+        input.getDireccion().setDepartamento(settings.getDepartamento());
+        input.getDireccion().setProvincia(settings.getProvincia());
+        input.getDireccion().setDistrito(settings.getDistrito());
+        input.getDireccion().setDireccion(settings.getDireccion());
+        input.getDireccion().setCodigoPais(settings.getCodigoPais());
+        input.getDireccion().setCodigoLocal(settings.getCodigoLocal());
+        input.getDireccion().setUrbanizacion(settings.getUrbanizacion());
+    }
+
     @POST
     @Path("/create/invoice")
     @Produces(MediaType.APPLICATION_JSON)
@@ -104,16 +117,21 @@ public class DocumentsResource {
             @NotNull InvoiceInputModel input
     ) {
         OrganizationModel organization = organizationProvider.getOrganizationById(organizationId).orElseThrow(() -> new NotFoundException("Organization not found"));
-        KeyManager.ActiveRsaKey activeRsaKey = getActiveRsaKey(organization);
+        enrichInput(organization, input.getProveedor());
 
+        // Extract certificate
+        KeyManager.ActiveRsaKey activeRsaKey = getActiveRsaKey(organization);
         X509Certificate certificate = activeRsaKey.getCertificate();
         PrivateKey privateKey = activeRsaKey.getPrivateKey();
 
-        String privateRsaKeyPem = PemUtils.encodeKey(privateKey);
-        String certificatePem = PemUtils.encodeCertificate(certificate);
-
-        byte[] xml = xmlBuilderClient.createInvoice(privateRsaKeyPem, certificatePem, input);
-        DocumentEntity document = documentsManager.createDocument(organization, xml);
+        // Create XML
+        byte[] xml = xmlProvider.createXML(certificate, privateKey, input);
+        DocumentEntity document;
+        try {
+            document = documentsManager.createDocument(organization, xml);
+        } catch (StorageException e) {
+            throw new InternalServerErrorException(e);
+        }
 
         return EntityToRepresentation.toRepresentation(document);
     }

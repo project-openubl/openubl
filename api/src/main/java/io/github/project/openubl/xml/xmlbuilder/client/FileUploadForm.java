@@ -1,4 +1,4 @@
-package io.github.project.openubl.resources.client;
+package io.github.project.openubl.xml.xmlbuilder.client;
 
 import org.jboss.resteasy.annotations.providers.multipart.PartType;
 

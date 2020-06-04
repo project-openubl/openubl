@@ -16,19 +16,20 @@
  */
 package io.github.project.openubl.resources;
 
+import io.github.project.openubl.keys.KeyProvider;
+import io.github.project.openubl.keys.KeyProviderFactory;
 import io.github.project.openubl.keys.component.ComponentFactory;
 import io.github.project.openubl.keys.provider.ProviderConfigProperty;
 import io.github.project.openubl.models.utils.ModelToRepresentation;
 import io.github.project.openubl.representations.idm.ServerInfoRepresentation;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.keycloak.representations.idm.ComponentTypeRepresentation;
-import io.github.project.openubl.keys.KeyProvider;
-import io.github.project.openubl.keys.KeyProviderFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -38,6 +39,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+@Transactional
 @ApplicationScoped
 @Path("/server-info")
 @Tag(name = "server-info")
@@ -46,6 +48,9 @@ public class ServerInfoAdminResource {
     @Inject
     @Any
     Instance<KeyProviderFactory> componentFactories;
+
+    @Inject
+    ModelToRepresentation modelToRepresentation;
 
     /**
      * General information about the server
@@ -73,7 +78,7 @@ public class ServerInfoAdminResource {
             if (configProperties == null) {
                 configProperties = Collections.emptyList();
             }
-            rep.setProperties(ModelToRepresentation.toRepresentation(configProperties));
+            rep.setProperties(modelToRepresentation.toRepresentation(configProperties));
 
             types.add(rep);
         }

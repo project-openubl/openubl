@@ -1,13 +1,13 @@
 /**
  * Copyright 2019 Project OpenUBL, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
- *
+ * <p>
  * Licensed under the Eclipse Public License - v 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,23 +18,19 @@
 package io.github.project.openubl.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.project.openubl.models.OrganizationModel;
 import io.github.project.openubl.models.OrganizationType;
 import io.github.project.openubl.representations.idm.OrganizationRepresentation;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.h2.H2DatabaseTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import io.restassured.response.Response;
-import io.restassured.response.ResponseBody;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.keycloak.representations.idm.ComponentRepresentation;
-import org.keycloak.representations.idm.KeysMetadataRepresentation;
-
-import java.util.List;
+import org.junit.jupiter.api.*;
 
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.CoreMatchers.*;
+import org.junit.jupiter.api.Order;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @QuarkusTest
 @QuarkusTestResource(H2DatabaseTestResource.class)
 public class OrganizationsResourceTest {
@@ -42,146 +38,173 @@ public class OrganizationsResourceTest {
     static final String ORGANIZATIONS_URL = ApiApplication.API_BASE + "/organizations";
 
     @Test
-    void testGetOrganizations() throws Exception {
-        // GIVEN
-
-        // WHEN
-        Response response = given()
+    @Order(1)
+    void testGetInitialListOfOrganizations() {
+        given()
                 .header("Content-Type", "application/json")
                 .when()
                 .get(ORGANIZATIONS_URL)
-                .thenReturn();
+                .then()
+                .statusCode(200)
+                .body("$.size()", is(1),
+                        "[0].id", is(OrganizationModel.MASTER_ID),
+                        "[0].id", is(OrganizationModel.MASTER_ID),
+                        "[0].name", is(OrganizationModel.MASTER_ID),
+                        "[0].description", is(nullValue()),
+                        "[0].type", is(OrganizationType.master.toString()),
+                        "[0].useMasterKeys", is(false),
+                        "[0].settings.ruc", is("12345678912"),
+                        "[0].settings.razonSocial", is("Project OpenUBL"),
+                        "[0].settings.nombreComercial", is(nullValue()),
+                        "[0].settings.sunatUsername", is("12345678912MODDATOS"),
+                        "[0].settings.sunatPassword", is("******"),
+                        "[0].settings.sunatUrlFactura", is("https://e-beta.sunat.gob.pe/ol-ti-itcpfegem-beta/billService"),
+                        "[0].settings.sunatUrlGuiaRemision", is("https://e-beta.sunat.gob.pe/ol-ti-itemision-guia-gem-beta/billService"),
+                        "[0].settings.sunatUrlPercepcionRetencion", is("https://e-beta.sunat.gob.pe/ol-ti-itemision-otroscpe-gem-beta/billService"),
+                        "[0].settings.address", is(anything()),
+                        "[0].settings.contacto", is(anything())
+                );
 
-        // THEN
-        assertEquals(200, response.getStatusCode());
-        ResponseBody responseBody = response.getBody();
-
-        List<OrganizationRepresentation> output = new ObjectMapper().readValue(responseBody.asInputStream(), List.class);
-        assertEquals(1, output.size());
     }
 
     @Test
-    void testGetOrganization() throws Exception {
-        // GIVEN
-
-        // WHEN
-        Response response = given()
+    void testGetMasterOrganization() throws Exception {
+        given()
                 .header("Content-Type", "application/json")
                 .when()
-                .get(ORGANIZATIONS_URL + "/master")
-                .thenReturn();
-
-        // THEN
-        assertEquals(200, response.getStatusCode());
-        ResponseBody responseBody = response.getBody();
-
-        OrganizationRepresentation output = new ObjectMapper().readValue(responseBody.asInputStream(), OrganizationRepresentation.class);
-        assertNotNull(output);
-        assertEquals("master", output.getId());
+                .get(ORGANIZATIONS_URL + "/" + OrganizationModel.MASTER_ID)
+                .then()
+                .statusCode(200)
+                .body("id", is(OrganizationModel.MASTER_ID),
+                        "name", is(OrganizationModel.MASTER_ID),
+                        "description", is(nullValue()),
+                        "type", is(OrganizationType.master.toString()),
+                        "useMasterKeys", is(false),
+                        "settings.ruc", is("12345678912"),
+                        "settings.razonSocial", is("Project OpenUBL"),
+                        "settings.nombreComercial", is(nullValue()),
+                        "settings.sunatUsername", is("12345678912MODDATOS"),
+                        "settings.sunatPassword", is("******"),
+                        "settings.sunatUrlFactura", is("https://e-beta.sunat.gob.pe/ol-ti-itcpfegem-beta/billService"),
+                        "settings.sunatUrlGuiaRemision", is("https://e-beta.sunat.gob.pe/ol-ti-itemision-guia-gem-beta/billService"),
+                        "settings.sunatUrlPercepcionRetencion", is("https://e-beta.sunat.gob.pe/ol-ti-itemision-otroscpe-gem-beta/billService"),
+                        "settings.address", is(anything()),
+                        "settings.contacto", is(anything())
+                );
     }
 
     @Test
-    void testCreateOrganization() throws Exception {
+    void testCreateOrganizationWithMinData() throws Exception {
         // GIVEN
         OrganizationRepresentation organization = new OrganizationRepresentation();
-        organization.setName("myCompanyNamae");
-        organization.setDescription("myCompanyDescription");
-        organization.setUseMasterKeys(false);
-        organization.setType("master"); // this field should be used, check asserts
+        organization.setName("myCompanyName");
+        organization.setSettings(new OrganizationRepresentation.Settings());
+        organization.getSettings().setRuc("12312312312");
+        organization.getSettings().setRazonSocial("My company name");
+        organization.getSettings().setSunatUsername("myUsername");
+        organization.getSettings().setSunatPassword("myPassword");
+        organization.getSettings().setSunatUrlFactura("myUrl1");
+        organization.getSettings().setSunatUrlGuiaRemision("myUrl2");
+        organization.getSettings().setSunatUrlPercepcionRetencion("myUrl3");
 
         String body = new ObjectMapper().writeValueAsString(organization);
 
         // WHEN
-        Response response = given()
+        given()
                 .body(body)
                 .header("Content-Type", "application/json")
                 .when()
                 .post(ORGANIZATIONS_URL)
-                .thenReturn();
-
-        // THEN
-        assertEquals(200, response.getStatusCode());
-        ResponseBody responseBody = response.getBody();
-
-        OrganizationRepresentation output = new ObjectMapper().readValue(responseBody.asInputStream(), OrganizationRepresentation.class);
-        assertEquals(organization.getName(), output.getName());
-        assertEquals(organization.getDescription(), output.getDescription());
-        assertEquals(organization.getUseMasterKeys(), output.getUseMasterKeys());
-        Assertions.assertEquals(OrganizationType.common.toString(), output.getType());
+                .then()
+                .body("id", is(notNullValue()),
+                        "name", is(organization.getName()),
+                        "description", is(nullValue()),
+                        "type", is(OrganizationType.common.toString()),
+                        "useMasterKeys", is(false),
+                        "settings.ruc", is("12312312312"),
+                        "settings.razonSocial", is("My company name"),
+                        "settings.nombreComercial", is(nullValue()),
+                        "settings.sunatUsername", is("myUsername"),
+                        "settings.sunatPassword", is("******"),
+                        "settings.sunatUrlFactura", is("myUrl1"),
+                        "settings.sunatUrlGuiaRemision", is("myUrl2"),
+                        "settings.sunatUrlPercepcionRetencion", is("myUrl3"),
+                        "settings.address", is(anything()),
+                        "settings.contacto", is(anything()));
     }
 
-    @Test
-    void testUpdateOrganization() throws Exception {
-        // GIVEN
-        String organizationId = "master";
-
-        OrganizationRepresentation organization = new OrganizationRepresentation();
-        organization.setName("myNewMasterName");
-        organization.setDescription("myNewMasterDescription");
-        organization.setUseMasterKeys(false);
-        organization.setType("common"); // this field should never change, check asserts
-
-        String body = new ObjectMapper().writeValueAsString(organization);
-
-        // WHEN
-        Response response = given()
-                .body(body)
-                .header("Content-Type", "application/json")
-                .when()
-                .put(ORGANIZATIONS_URL + "/" + organizationId)
-                .thenReturn();
-
-        // THEN
-        assertEquals(200, response.getStatusCode());
-        ResponseBody responseBody = response.getBody();
-
-        OrganizationRepresentation output = new ObjectMapper().readValue(responseBody.asInputStream(), OrganizationRepresentation.class);
-        assertEquals(organization.getName(), output.getName());
-        assertEquals(organization.getDescription(), output.getDescription());
-        assertEquals(organization.getUseMasterKeys(), output.getUseMasterKeys());
-        assertEquals(OrganizationType.master.toString(), output.getType());
-    }
-
-    @Test
-    void testGetKeyMetadata() throws Exception {
-        // GIVEN
-        String organizationId = "master";
-
-        // WHEN
-        Response response = given()
-                .header("Content-Type", "application/json")
-                .when()
-                .get(ORGANIZATIONS_URL + "/" + organizationId + "/keys")
-                .thenReturn();
-
-        // THEN
-        assertEquals(200, response.getStatusCode());
-        ResponseBody responseBody = response.getBody();
-
-        KeysMetadataRepresentation output = new ObjectMapper().readValue(responseBody.asInputStream(), KeysMetadataRepresentation.class);
-        assertNotNull(output);
-        assertFalse(output.getActive().isEmpty());
-        assertFalse(output.getKeys().isEmpty());
-    }
-
-    @Test
-    void testGetComponents() throws Exception {
-        // GIVEN
-        String organizationId = "master";
-
-        // WHEN
-        Response response = given()
-                .header("Content-Type", "application/json")
-                .when()
-                .get(ORGANIZATIONS_URL + "/" + organizationId + "/components")
-                .thenReturn();
-
-        // THEN
-        assertEquals(200, response.getStatusCode());
-        ResponseBody responseBody = response.getBody();
-
-        List<ComponentRepresentation> output = new ObjectMapper().readValue(responseBody.asInputStream(), List.class);
-        assertNotNull(output);
-        assertFalse(output.isEmpty());
-    }
+//    @Test
+//    void testUpdateOrganization() throws Exception {
+//        // GIVEN
+//        String organizationId = "master";
+//
+//        OrganizationRepresentation organization = new OrganizationRepresentation();
+//        organization.setName("myNewMasterName");
+//        organization.setDescription("myNewMasterDescription");
+//        organization.setUseMasterKeys(false);
+//        organization.setType("common"); // this field should never change, check asserts
+//
+//        String body = new ObjectMapper().writeValueAsString(organization);
+//
+//        // WHEN
+//        Response response = given()
+//                .body(body)
+//                .header("Content-Type", "application/json")
+//                .when()
+//                .put(ORGANIZATIONS_URL + "/" + organizationId)
+//                .thenReturn();
+//
+//        // THEN
+//        assertEquals(200, response.getStatusCode());
+//        ResponseBody responseBody = response.getBody();
+//
+//        OrganizationRepresentation output = new ObjectMapper().readValue(responseBody.asInputStream(), OrganizationRepresentation.class);
+//        assertEquals(organization.getName(), output.getName());
+//        assertEquals(organization.getDescription(), output.getDescription());
+//        assertEquals(organization.getUseMasterKeys(), output.getUseMasterKeys());
+//        assertEquals(OrganizationType.master.toString(), output.getType());
+//    }
+//
+//    @Test
+//    void testGetKeyMetadata() throws Exception {
+//        // GIVEN
+//        String organizationId = "master";
+//
+//        // WHEN
+//        Response response = given()
+//                .header("Content-Type", "application/json")
+//                .when()
+//                .get(ORGANIZATIONS_URL + "/" + organizationId + "/keys")
+//                .thenReturn();
+//
+//        // THEN
+//        assertEquals(200, response.getStatusCode());
+//        ResponseBody responseBody = response.getBody();
+//
+//        KeysMetadataRepresentation output = new ObjectMapper().readValue(responseBody.asInputStream(), KeysMetadataRepresentation.class);
+//        assertNotNull(output);
+//        assertFalse(output.getActive().isEmpty());
+//        assertFalse(output.getKeys().isEmpty());
+//    }
+//
+//    @Test
+//    void testGetComponents() throws Exception {
+//        // GIVEN
+//        String organizationId = "master";
+//
+//        // WHEN
+//        Response response = given()
+//                .header("Content-Type", "application/json")
+//                .when()
+//                .get(ORGANIZATIONS_URL + "/" + organizationId + "/components")
+//                .thenReturn();
+//
+//        // THEN
+//        assertEquals(200, response.getStatusCode());
+//        ResponseBody responseBody = response.getBody();
+//
+//        List<ComponentRepresentation> output = new ObjectMapper().readValue(responseBody.asInputStream(), List.class);
+//        assertNotNull(output);
+//        assertFalse(output.isEmpty());
+//    }
 }

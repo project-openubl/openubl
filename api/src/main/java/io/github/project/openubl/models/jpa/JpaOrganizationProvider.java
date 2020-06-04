@@ -16,13 +16,11 @@
  */
 package io.github.project.openubl.models.jpa;
 
+import io.github.project.openubl.models.*;
 import io.github.project.openubl.models.jpa.entities.OrganizationEntity;
+import io.github.project.openubl.models.jpa.entities.OrganizationSettingsEntity;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
-import io.github.project.openubl.models.OrganizationModel;
-import io.github.project.openubl.models.OrganizationProvider;
-import io.github.project.openubl.models.OrganizationType;
-import io.github.project.openubl.models.SearchResultsModel;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -40,19 +38,32 @@ public class JpaOrganizationProvider implements OrganizationProvider {
     EntityManager em;
 
     @Override
-    public OrganizationModel addOrganization(String id, String name, OrganizationType type) {
-        OrganizationEntity entity = new OrganizationEntity();
-        entity.setId(id);
-        entity.setName(name);
-        entity.setType(type);
-        em.persist(entity);
+    public OrganizationModel addOrganization(String id, String name, OrganizationType type, OrganizationSettingsModel.MinData data) {
+        OrganizationEntity organizationEntity = new OrganizationEntity();
+        organizationEntity.setId(id);
+        organizationEntity.setName(name);
+        organizationEntity.setType(type);
 
-        return new OrganizationAdapter(entity);
+        OrganizationSettingsEntity settingsEntity = new OrganizationSettingsEntity();
+        settingsEntity.setId(UUID.randomUUID().toString());
+        settingsEntity.setRuc(data.getRuc());
+        settingsEntity.setRazonSocial(data.getRazonSocial());
+        settingsEntity.setSunatUsername(data.getSunatUsername());
+        settingsEntity.setSunatPassword(data.getSunatPassword());
+        settingsEntity.setSunatUrlFacturaElectronica(data.getSunatUrlFacturaElectronica());
+        settingsEntity.setSunatUrlGuiaRemision(data.getSunatUrlGuiaRemision());
+        settingsEntity.setSunatUrlPercepcionRetencion(data.getSunatUrlPercepcionRetencion());
+
+        settingsEntity.setOrganization(organizationEntity);
+        organizationEntity.setSettings(settingsEntity);
+        em.persist(organizationEntity);
+
+        return new OrganizationAdapter(organizationEntity);
     }
 
     @Override
-    public OrganizationModel addOrganization(String name, OrganizationType type) {
-        return addOrganization(UUID.randomUUID().toString(), name, type);
+    public OrganizationModel addOrganization(String name, OrganizationType type, OrganizationSettingsModel.MinData data) {
+        return addOrganization(UUID.randomUUID().toString(), name, type, data);
     }
 
     @Override

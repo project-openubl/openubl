@@ -16,8 +16,8 @@
  */
 package io.github.project.openubl.models.jpa.entities;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import io.github.project.openubl.models.OrganizationType;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -64,30 +64,8 @@ public class OrganizationEntity extends PanacheEntityBase {
     @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true, mappedBy = "organization")
     private Set<ComponentEntity> components = new HashSet<>();
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof OrganizationEntity)) {
-            return false;
-        }
-        OrganizationEntity other = (OrganizationEntity) obj;
-        if (id != null) {
-            if (!id.equals(other.id)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        return result;
-    }
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true, mappedBy = "organization")
+    private OrganizationSettingsEntity settings;
 
     public String getId() {
         return this.id;
@@ -143,5 +121,38 @@ public class OrganizationEntity extends PanacheEntityBase {
 
     public void setComponents(Set<ComponentEntity> components) {
         this.components = components;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof OrganizationEntity)) {
+            return false;
+        }
+        OrganizationEntity other = (OrganizationEntity) obj;
+        if (id != null) {
+            if (!id.equals(other.id)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        return result;
+    }
+
+    public OrganizationSettingsEntity getSettings() {
+        return settings;
+    }
+
+    public void setSettings(OrganizationSettingsEntity settings) {
+        this.settings = settings;
     }
 }

@@ -14,12 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.project.openubl.resources.client;
+package io.github.project.openubl.xml.xmlbuilder.client;
 
 import io.github.project.openubl.xmlbuilderlib.models.input.standard.invoice.InvoiceInputModel;
-import io.github.project.openubl.xmlsender.idm.DocumentRepresentation;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
-import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;

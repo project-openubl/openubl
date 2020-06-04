@@ -16,14 +16,11 @@
  */
 package io.github.project.openubl.managers;
 
+import io.github.project.openubl.keys.KeyProvider;
+import io.github.project.openubl.models.*;
 import io.github.project.openubl.models.utils.DefaultKeyProviders;
 import io.github.project.openubl.models.utils.RepresentationToModel;
 import io.github.project.openubl.representations.idm.OrganizationRepresentation;
-import io.github.project.openubl.keys.KeyProvider;
-import io.github.project.openubl.models.ComponentProvider;
-import io.github.project.openubl.models.OrganizationModel;
-import io.github.project.openubl.models.OrganizationProvider;
-import io.github.project.openubl.models.OrganizationType;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -42,9 +39,21 @@ public class OrganizationManager {
     @Inject
     OrganizationProvider organizationProvider;
 
-    public OrganizationModel createOrganization(OrganizationRepresentation representation) {
-        OrganizationModel organization = organizationProvider.addOrganization(representation.getName(), OrganizationType.common);
-        RepresentationToModel.updateOrganization(representation, organization);
+    @Inject
+    RepresentationToModel representationToModel;
+
+    public OrganizationModel createOrganization(OrganizationRepresentation rep) {
+        OrganizationSettingsModel.MinData settingsMinData = new OrganizationSettingsModel.MinData();
+        settingsMinData.setRuc(rep.getSettings().getRuc());
+        settingsMinData.setRazonSocial(rep.getSettings().getRazonSocial());
+        settingsMinData.setSunatUsername(rep.getSettings().getSunatUsername());
+        settingsMinData.setSunatPassword(rep.getSettings().getSunatPassword());
+        settingsMinData.setSunatUrlFacturaElectronica(rep.getSettings().getSunatUrlFactura());
+        settingsMinData.setSunatUrlGuiaRemision(rep.getSettings().getSunatUrlGuiaRemision());
+        settingsMinData.setSunatUrlPercepcionRetencion(rep.getSettings().getSunatUrlPercepcionRetencion());
+
+        OrganizationModel organization = organizationProvider.addOrganization(rep.getName(), OrganizationType.common, settingsMinData);
+        representationToModel.updateOrganization(rep, organization);
 
         // Certificate
         if (componentProvider.getComponents(organization, organization.getId(), KeyProvider.class.getName()).isEmpty()) {

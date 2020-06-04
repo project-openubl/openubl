@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.project.openubl.resources.client;
+package io.github.project.openubl.xml.xmlbuilder.client;
 
 import io.github.project.openubl.xmlsender.idm.DocumentRepresentation;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;

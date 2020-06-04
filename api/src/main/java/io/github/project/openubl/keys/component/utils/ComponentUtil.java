@@ -16,11 +16,11 @@
  */
 package io.github.project.openubl.keys.component.utils;
 
-import org.keycloak.representations.idm.ComponentRepresentation;
 import io.github.project.openubl.keys.component.ComponentFactory;
 import io.github.project.openubl.keys.component.ComponentModel;
 import io.github.project.openubl.keys.provider.ProviderConfigProperty;
 import io.github.project.openubl.models.OrganizationModel;
+import org.keycloak.representations.idm.ComponentRepresentation;
 
 import java.util.HashMap;
 import java.util.List;

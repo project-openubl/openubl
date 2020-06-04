@@ -16,6 +16,12 @@
  */
 package io.github.project.openubl.representations.idm;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 public class OrganizationRepresentation {
 
     private String id;
@@ -25,16 +31,223 @@ public class OrganizationRepresentation {
     private String type;
     private Boolean useMasterKeys;
 
-    public OrganizationRepresentation() {
+    @NotNull
+    @Valid
+    private Settings settings;
 
+    public static class Settings {
+        @NotNull
+        @NotEmpty
+        private String ruc;
+
+        @NotNull
+        @NotEmpty
+        private String razonSocial;
+        private String nombreComercial;
+
+        @NotNull
+        @NotEmpty
+        private String sunatUsername;
+
+        @NotNull
+        @NotEmpty
+        private String sunatPassword;
+
+        @NotNull
+        @NotEmpty
+        private String sunatUrlFactura;
+
+        @NotNull
+        @NotEmpty
+        private String sunatUrlGuiaRemision;
+
+        @NotNull
+        @NotEmpty
+        private String sunatUrlPercepcionRetencion;
+
+        @Valid
+        private Address address;
+
+        @Valid
+        private Contact contact;
+
+        public String getRuc() {
+            return ruc;
+        }
+
+        public void setRuc(String ruc) {
+            this.ruc = ruc;
+        }
+
+        public String getRazonSocial() {
+            return razonSocial;
+        }
+
+        public void setRazonSocial(String razonSocial) {
+            this.razonSocial = razonSocial;
+        }
+
+        public String getNombreComercial() {
+            return nombreComercial;
+        }
+
+        public void setNombreComercial(String nombreComercial) {
+            this.nombreComercial = nombreComercial;
+        }
+
+        public Address getAddress() {
+            return address;
+        }
+
+        public void setAddress(Address address) {
+            this.address = address;
+        }
+
+        public Contact getContact() {
+            return contact;
+        }
+
+        public void setContact(Contact contact) {
+            this.contact = contact;
+        }
+
+        public String getSunatUsername() {
+            return sunatUsername;
+        }
+
+        public void setSunatUsername(String sunatUsername) {
+            this.sunatUsername = sunatUsername;
+        }
+
+        public String getSunatPassword() {
+            return sunatPassword;
+        }
+
+        public void setSunatPassword(String sunatPassword) {
+            this.sunatPassword = sunatPassword;
+        }
+
+        public String getSunatUrlFactura() {
+            return sunatUrlFactura;
+        }
+
+        public void setSunatUrlFactura(String sunatUrlFactura) {
+            this.sunatUrlFactura = sunatUrlFactura;
+        }
+
+        public String getSunatUrlGuiaRemision() {
+            return sunatUrlGuiaRemision;
+        }
+
+        public void setSunatUrlGuiaRemision(String sunatUrlGuiaRemision) {
+            this.sunatUrlGuiaRemision = sunatUrlGuiaRemision;
+        }
+
+        public String getSunatUrlPercepcionRetencion() {
+            return sunatUrlPercepcionRetencion;
+        }
+
+        public void setSunatUrlPercepcionRetencion(String sunatUrlPercepcionRetencion) {
+            this.sunatUrlPercepcionRetencion = sunatUrlPercepcionRetencion;
+        }
     }
 
-    public OrganizationRepresentation(OrganizationRepresentation rep) {
-        this.id = rep.getId();
-        this.name = rep.getName();
-        this.description = rep.getDescription();
-        this.type = rep.getType();
-        this.useMasterKeys = rep.getUseMasterKeys();
+    public static class Address {
+        @Size(min = 6, max = 6)
+        private String ubigeo;
+        private String codigoLocal;
+        private String urbanizacion;
+        private String provincia;
+        private String departamento;
+        private String distrito;
+        private String direccion;
+        private String codigoPais;
+
+        public String getUbigeo() {
+            return ubigeo;
+        }
+
+        public void setUbigeo(String ubigeo) {
+            this.ubigeo = ubigeo;
+        }
+
+        public String getCodigoLocal() {
+            return codigoLocal;
+        }
+
+        public void setCodigoLocal(String codigoLocal) {
+            this.codigoLocal = codigoLocal;
+        }
+
+        public String getUrbanizacion() {
+            return urbanizacion;
+        }
+
+        public void setUrbanizacion(String urbanizacion) {
+            this.urbanizacion = urbanizacion;
+        }
+
+        public String getProvincia() {
+            return provincia;
+        }
+
+        public void setProvincia(String provincia) {
+            this.provincia = provincia;
+        }
+
+        public String getDepartamento() {
+            return departamento;
+        }
+
+        public void setDepartamento(String departamento) {
+            this.departamento = departamento;
+        }
+
+        public String getDistrito() {
+            return distrito;
+        }
+
+        public void setDistrito(String distrito) {
+            this.distrito = distrito;
+        }
+
+        public String getDireccion() {
+            return direccion;
+        }
+
+        public void setDireccion(String direccion) {
+            this.direccion = direccion;
+        }
+
+        public String getCodigoPais() {
+            return codigoPais;
+        }
+
+        public void setCodigoPais(String codigoPais) {
+            this.codigoPais = codigoPais;
+        }
+    }
+
+    public static class Contact {
+        @Email
+        private String email;
+        private String telefono;
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public String getTelefono() {
+            return telefono;
+        }
+
+        public void setTelefono(String telefono) {
+            this.telefono = telefono;
+        }
     }
 
     public String getId() {
@@ -75,5 +288,13 @@ public class OrganizationRepresentation {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Settings getSettings() {
+        return settings;
+    }
+
+    public void setSettings(Settings settings) {
+        this.settings = settings;
     }
 }

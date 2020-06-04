@@ -16,11 +16,11 @@
  */
 package io.github.project.openubl.resources.health;
 
+import io.github.project.openubl.models.OrganizationModel;
+import io.github.project.openubl.models.OrganizationProvider;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Readiness;
-import io.github.project.openubl.models.OrganizationModel;
-import io.github.project.openubl.models.OrganizationProvider;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;

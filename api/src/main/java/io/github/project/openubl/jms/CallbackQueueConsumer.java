@@ -18,7 +18,6 @@ package io.github.project.openubl.jms;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.project.openubl.managers.DocumentsManager;
-import io.github.project.openubl.xmlbuilderlib.facade.DocumentManager;
 import io.github.project.openubl.xmlsender.idm.DocumentRepresentation;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;

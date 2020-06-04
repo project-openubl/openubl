@@ -16,31 +16,27 @@
  */
 package io.github.project.openubl.managers;
 
+import io.github.project.openubl.files.FileType;
+import io.github.project.openubl.files.FilesManager;
+import io.github.project.openubl.files.exceptions.StorageException;
 import io.github.project.openubl.models.DocumentProvider;
-import io.github.project.openubl.models.OrganizationProvider;
-import io.github.project.openubl.models.jpa.OrganizationAdapter;
-import io.github.project.openubl.models.jpa.entities.DocumentEntity;
 import io.github.project.openubl.models.OrganizationModel;
-import io.github.project.openubl.resources.client.FileUploadForm;
-import io.github.project.openubl.resources.client.XMLSenderClient;
-import io.github.project.openubl.xmlbuilderlib.xml.XmlSignatureHelper;
+import io.github.project.openubl.models.OrganizationProvider;
+import io.github.project.openubl.models.jpa.entities.DocumentEntity;
+import io.github.project.openubl.xml.xmlbuilder.client.FileUploadForm;
+import io.github.project.openubl.xml.xmlbuilder.client.XMLSenderClient;
 import io.github.project.openubl.xmlsender.idm.DocumentRepresentation;
-import org.apache.maven.model.InputLocation;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.jboss.logging.Logger;
-import org.w3c.dom.Document;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.io.ByteArrayInputStream;
-import java.util.Optional;
+import java.util.UUID;
 
 @Transactional
 @ApplicationScoped
 public class DocumentsManager {
-
-    private static final Logger LOG = Logger.getLogger(DocumentsManager.class);
 
     @Inject
     @RestClient
@@ -52,16 +48,26 @@ public class DocumentsManager {
     @Inject
     OrganizationProvider organizationProvider;
 
-    public DocumentEntity createDocument(OrganizationModel organization, byte[] xml) {
+    @Inject
+    FilesManager filesManager;
+
+    public DocumentEntity createDocument(OrganizationModel organization, byte[] xml) throws StorageException {
         DocumentEntity document = documentProvider.addDocument(organization);
 
-        // Save XML in XML Sender
+        // Save File
+        String fileID = filesManager.createFile(xml, FileType.getFilename(UUID.randomUUID().toString(), FileType.XML), FileType.XML);
+        if (fileID == null) {
+            throw new StorageException("Could not save xml file in storage");
+        }
+        document.setFileStorageId(fileID);
+
+        // Send
         FileUploadForm fileUploadForm = new FileUploadForm();
         fileUploadForm.file = new ByteArrayInputStream(xml);
         fileUploadForm.customId = encodeCustomId(organization, document);
 
         DocumentRepresentation rep = xmlSenderClient.createDocument(fileUploadForm);
-        document.setXmlSenderID(rep.getId());
+        document.setDocumentSenderId(rep.getId().toString());
 
         // return result
         return document;
@@ -73,13 +79,13 @@ public class DocumentsManager {
         DocumentEntity document = documentProvider.getDocumentById(customId.documentId, organization).orElseThrow(IllegalAccessError::new);
 
         String sunatStatus = documentRep.getSunatStatus().getStatus();
-        document.setXmlSenderSUNATStatus(sunatStatus);
+        document.setDocumentSenderStatus(sunatStatus);
 
         DocumentEntity.persist(document);
     }
 
     private String encodeCustomId(OrganizationModel organization, DocumentEntity document) {
-        return organization.getId() + "::" + document.id;
+        return organization.getId() + "::" + document.getId();
     }
 
     private CustomId decodeCustomId_organizationId(String customId) {

@@ -75,15 +75,11 @@ public class OrganizationsResource {
     @Inject
     OrganizationProvider organizationProvider;
 
-    @POST
-    @Path("/")
-    public OrganizationRepresentation createOrganization(@Valid OrganizationRepresentation representation) {
-        if (organizationProvider.getOrganizationByName(representation.getName()).isPresent()) {
-            throw new BadRequestException("Organization with name=" + representation.getName() + " already exists");
-        }
-        OrganizationModel organization = organizationManager.createOrganization(representation);
-        return ModelToRepresentation.toRepresentation(organization, true);
-    }
+    @Inject
+    ModelToRepresentation modelToRepresentation;
+
+    @Inject
+    RepresentationToModel representationToModel;
 
     @GET
     @Path("/")
@@ -95,21 +91,31 @@ public class OrganizationsResource {
     ) {
         if (organizationId != null) {
             return organizationProvider.getOrganizationById(organizationId)
-                    .map(organizationModel -> Collections.singletonList(ModelToRepresentation.toRepresentation(organizationModel, true)))
+                    .map(organizationModel -> Collections.singletonList(modelToRepresentation.toRepresentation(organizationModel, true)))
                     .orElseGet(Collections::emptyList);
         }
 
         if (filterText != null) {
             return organizationProvider.getOrganizations(filterText, offset, limit)
                     .stream()
-                    .map(model -> ModelToRepresentation.toRepresentation(model, true))
+                    .map(model -> modelToRepresentation.toRepresentation(model, true))
                     .collect(Collectors.toList());
         } else {
             return organizationProvider.getOrganizations(offset, limit)
                     .stream()
-                    .map(model -> ModelToRepresentation.toRepresentation(model, true))
+                    .map(model -> modelToRepresentation.toRepresentation(model, true))
                     .collect(Collectors.toList());
         }
+    }
+
+    @POST
+    @Path("/")
+    public OrganizationRepresentation createOrganization(@Valid OrganizationRepresentation representation) {
+        if (organizationProvider.getOrganizationByName(representation.getName()).isPresent()) {
+            throw new BadRequestException("Organization with name=" + representation.getName() + " already exists");
+        }
+        OrganizationModel organization = organizationManager.createOrganization(representation);
+        return modelToRepresentation.toRepresentation(organization, true);
     }
 
     @GET
@@ -129,7 +135,7 @@ public class OrganizationsResource {
         return new SearchResultsRepresentation<>(
                 results.getTotalSize(),
                 results.getModels().stream()
-                        .map(model -> ModelToRepresentation.toRepresentation(model, true))
+                        .map(model -> modelToRepresentation.toRepresentation(model, true))
                         .collect(Collectors.toList())
         );
     }
@@ -139,7 +145,7 @@ public class OrganizationsResource {
     public List<OrganizationRepresentation> getAllOrganizations() {
         return organizationProvider.getOrganizations(-1, -1)
                 .stream()
-                .map(model -> ModelToRepresentation.toRepresentation(model, true))
+                .map(model -> modelToRepresentation.toRepresentation(model, true))
                 .collect(Collectors.toList());
     }
 
@@ -159,7 +165,7 @@ public class OrganizationsResource {
             @PathParam("organizationId") String organizationId
     ) {
         return organizationProvider.getOrganizationById(organizationId)
-                .map(organizationModel -> ModelToRepresentation.toRepresentation(organizationModel, true))
+                .map(organizationModel -> modelToRepresentation.toRepresentation(organizationModel, true))
                 .orElseThrow(() -> new NotFoundException("Organization not found"));
     }
 
@@ -170,8 +176,8 @@ public class OrganizationsResource {
             OrganizationRepresentation rep
     ) {
         OrganizationModel organization = organizationProvider.getOrganizationById(organizationId).orElseThrow(() -> new NotFoundException("Organization not found"));
-        RepresentationToModel.updateOrganization(rep, organization);
-        return ModelToRepresentation.toRepresentation(organization, true);
+        representationToModel.updateOrganization(rep, organization);
+        return modelToRepresentation.toRepresentation(organization, true);
     }
 
     @DELETE
@@ -247,10 +253,10 @@ public class OrganizationsResource {
             if (name != null && !name.equals(component.getName())) continue;
             ComponentRepresentation rep = null;
             try {
-                rep = ModelToRepresentation.toRepresentation(component, false, componentUtil);
+                rep = modelToRepresentation.toRepresentation(component, false, componentUtil);
             } catch (Exception e) {
                 logger.error("Failed to get component list for component model" + component.getName() + "of organization " + organization.getName());
-                rep = ModelToRepresentation.toRepresentationWithoutConfig(component);
+                rep = modelToRepresentation.toRepresentationWithoutConfig(component);
             }
             reps.add(rep);
         }
@@ -266,7 +272,7 @@ public class OrganizationsResource {
         OrganizationModel organization = organizationProvider.getOrganizationById(organizationId).orElseThrow(() -> new NotFoundException("Organization not found"));
 
         try {
-            ComponentModel model = RepresentationToModel.toModel(rep);
+            ComponentModel model = representationToModel.toModel(rep);
             if (model.getParentId() == null) model.setParentId(organization.getId());
 
             model = componentProvider.addComponentModel(organization, model);
@@ -294,7 +300,7 @@ public class OrganizationsResource {
             throw new NotFoundException("Could not find component");
         }
 
-        return ModelToRepresentation.toRepresentation(model, false, componentUtil);
+        return modelToRepresentation.toRepresentation(model, false, componentUtil);
     }
 
     @PUT
@@ -312,7 +318,7 @@ public class OrganizationsResource {
             if (model == null) {
                 throw new NotFoundException("Could not find component");
             }
-            RepresentationToModel.updateComponent(rep, model, false, componentUtil);
+            representationToModel.updateComponent(rep, model, false, componentUtil);
 
             componentProvider.updateComponent(organization, model);
             return Response.noContent().build();
