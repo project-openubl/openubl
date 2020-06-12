@@ -1,13 +1,13 @@
 /**
  * Copyright 2019 Project OpenUBL, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
- *
+ * <p>
  * Licensed under the Eclipse Public License - v 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,8 +19,10 @@ package io.github.project.openubl.models.jpa;
 import io.github.project.openubl.models.*;
 import io.github.project.openubl.models.jpa.entities.OrganizationEntity;
 import io.github.project.openubl.models.jpa.entities.OrganizationSettingsEntity;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
+import io.quarkus.panache.common.Sort;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -152,6 +154,37 @@ public class JpaOrganizationProvider implements OrganizationProvider {
                 .collect(Collectors.toList());
 
         return new SearchResultsModel<>(count, list);
+    }
+
+    @Override
+    public PageModel<OrganizationModel> getOrganizationsAsPage(PageBean pageBean, List<SortBean> sortBy) {
+        Sort sort = Sort.by();
+        sortBy.forEach(f -> sort.and(f.getFieldName(), f.isAsc() ? Sort.Direction.Ascending : Sort.Direction.Descending));
+
+        PanacheQuery<OrganizationEntity> query = OrganizationEntity.findAll(sort)
+                .range(pageBean.getOffset(), pageBean.getLimit());
+
+        long count = query.count();
+        List<OrganizationModel> list = query.list().stream()
+                .map(OrganizationAdapter::new)
+                .collect(Collectors.toList());
+        return new PageModel<>(pageBean, count, list);
+    }
+
+    @Override
+    public PageModel<OrganizationModel> getOrganizationsAsPage(String filterText, PageBean pageBean, List<SortBean> sortBy) {
+        Sort sort = Sort.by();
+        sortBy.forEach(f -> sort.and(f.getFieldName(), f.isAsc() ? Sort.Direction.Ascending : Sort.Direction.Descending));
+
+        PanacheQuery<OrganizationEntity> query = OrganizationEntity
+                .find("From OrganizationEntity as o where lower(o.name) like ?1", "%" + filterText.toLowerCase())
+                .range(pageBean.getOffset(), pageBean.getLimit());
+
+        long count = query.count();
+        List<OrganizationModel> list = query.list().stream()
+                .map(OrganizationAdapter::new)
+                .collect(Collectors.toList());
+        return new PageModel<>(pageBean, count, list);
     }
 
     @Override

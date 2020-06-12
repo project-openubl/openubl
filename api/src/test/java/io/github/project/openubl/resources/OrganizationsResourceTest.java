@@ -46,92 +46,99 @@ public class OrganizationsResourceTest {
                 .get(ORGANIZATIONS_URL)
                 .then()
                 .statusCode(200)
-                .body("$.size()", is(1),
-                        "[0].id", is(OrganizationModel.MASTER_ID),
-                        "[0].id", is(OrganizationModel.MASTER_ID),
-                        "[0].name", is(OrganizationModel.MASTER_ID),
-                        "[0].description", is(nullValue()),
-                        "[0].type", is(OrganizationType.master.toString()),
-                        "[0].useMasterKeys", is(false),
-                        "[0].settings.ruc", is("12345678912"),
-                        "[0].settings.razonSocial", is("Project OpenUBL"),
-                        "[0].settings.nombreComercial", is(nullValue()),
-                        "[0].settings.sunatUsername", is("12345678912MODDATOS"),
-                        "[0].settings.sunatPassword", is("******"),
-                        "[0].settings.sunatUrlFactura", is("https://e-beta.sunat.gob.pe/ol-ti-itcpfegem-beta/billService"),
-                        "[0].settings.sunatUrlGuiaRemision", is("https://e-beta.sunat.gob.pe/ol-ti-itemision-guia-gem-beta/billService"),
-                        "[0].settings.sunatUrlPercepcionRetencion", is("https://e-beta.sunat.gob.pe/ol-ti-itemision-otroscpe-gem-beta/billService"),
-                        "[0].settings.address", is(anything()),
-                        "[0].settings.contacto", is(anything())
+                .body("meta.offset", is(0),
+                        "meta.limit", is(10),
+                        "meta.count", is(1),
+                        "links.first", is(notNullValue()),
+                        "links.last", is(notNullValue()),
+                        "links.next", is(nullValue()),
+                        "links.previous", is(nullValue()),
+                        "data.size()", is(1),
+                        "data[0].id", is(OrganizationModel.MASTER_ID),
+                        "data[0].id", is(OrganizationModel.MASTER_ID),
+                        "data[0].name", is(OrganizationModel.MASTER_ID),
+                        "data[0].description", is(nullValue()),
+                        "data[0].type", is(OrganizationType.master.toString()),
+                        "data[0].useMasterKeys", is(false),
+                        "data[0].settings.ruc", is("12345678912"),
+                        "data[0].settings.razonSocial", is("Project OpenUBL"),
+                        "data[0].settings.nombreComercial", is(nullValue()),
+                        "data[0].settings.sunatUsername", is("12345678912MODDATOS"),
+                        "data[0].settings.sunatPassword", is("******"),
+                        "data[0].settings.sunatUrlFactura", is("https://e-beta.sunat.gob.pe/ol-ti-itcpfegem-beta/billService"),
+                        "data[0].settings.sunatUrlGuiaRemision", is("https://e-beta.sunat.gob.pe/ol-ti-itemision-guia-gem-beta/billService"),
+                        "data[0].settings.sunatUrlPercepcionRetencion", is("https://e-beta.sunat.gob.pe/ol-ti-itemision-otroscpe-gem-beta/billService"),
+                        "data[0].settings.address", is(anything()),
+                        "data[0].settings.contacto", is(anything())
                 );
 
     }
 
-    @Test
-    void testGetMasterOrganization() throws Exception {
-        given()
-                .header("Content-Type", "application/json")
-                .when()
-                .get(ORGANIZATIONS_URL + "/" + OrganizationModel.MASTER_ID)
-                .then()
-                .statusCode(200)
-                .body("id", is(OrganizationModel.MASTER_ID),
-                        "name", is(OrganizationModel.MASTER_ID),
-                        "description", is(nullValue()),
-                        "type", is(OrganizationType.master.toString()),
-                        "useMasterKeys", is(false),
-                        "settings.ruc", is("12345678912"),
-                        "settings.razonSocial", is("Project OpenUBL"),
-                        "settings.nombreComercial", is(nullValue()),
-                        "settings.sunatUsername", is("12345678912MODDATOS"),
-                        "settings.sunatPassword", is("******"),
-                        "settings.sunatUrlFactura", is("https://e-beta.sunat.gob.pe/ol-ti-itcpfegem-beta/billService"),
-                        "settings.sunatUrlGuiaRemision", is("https://e-beta.sunat.gob.pe/ol-ti-itemision-guia-gem-beta/billService"),
-                        "settings.sunatUrlPercepcionRetencion", is("https://e-beta.sunat.gob.pe/ol-ti-itemision-otroscpe-gem-beta/billService"),
-                        "settings.address", is(anything()),
-                        "settings.contacto", is(anything())
-                );
-    }
+//    @Test
+//    void testGetMasterOrganization() throws Exception {
+//        given()
+//                .header("Content-Type", "application/json")
+//                .when()
+//                .get(ORGANIZATIONS_URL + "/" + OrganizationModel.MASTER_ID)
+//                .then()
+//                .statusCode(200)
+//                .body("id", is(OrganizationModel.MASTER_ID),
+//                        "name", is(OrganizationModel.MASTER_ID),
+//                        "description", is(nullValue()),
+//                        "type", is(OrganizationType.master.toString()),
+//                        "useMasterKeys", is(false),
+//                        "settings.ruc", is("12345678912"),
+//                        "settings.razonSocial", is("Project OpenUBL"),
+//                        "settings.nombreComercial", is(nullValue()),
+//                        "settings.sunatUsername", is("12345678912MODDATOS"),
+//                        "settings.sunatPassword", is("******"),
+//                        "settings.sunatUrlFactura", is("https://e-beta.sunat.gob.pe/ol-ti-itcpfegem-beta/billService"),
+//                        "settings.sunatUrlGuiaRemision", is("https://e-beta.sunat.gob.pe/ol-ti-itemision-guia-gem-beta/billService"),
+//                        "settings.sunatUrlPercepcionRetencion", is("https://e-beta.sunat.gob.pe/ol-ti-itemision-otroscpe-gem-beta/billService"),
+//                        "settings.address", is(anything()),
+//                        "settings.contacto", is(anything())
+//                );
+//    }
 
-    @Test
-    void testCreateOrganizationWithMinData() throws Exception {
-        // GIVEN
-        OrganizationRepresentation organization = new OrganizationRepresentation();
-        organization.setName("myCompanyName");
-        organization.setSettings(new OrganizationRepresentation.Settings());
-        organization.getSettings().setRuc("12312312312");
-        organization.getSettings().setRazonSocial("My company name");
-        organization.getSettings().setSunatUsername("myUsername");
-        organization.getSettings().setSunatPassword("myPassword");
-        organization.getSettings().setSunatUrlFactura("myUrl1");
-        organization.getSettings().setSunatUrlGuiaRemision("myUrl2");
-        organization.getSettings().setSunatUrlPercepcionRetencion("myUrl3");
-
-        String body = new ObjectMapper().writeValueAsString(organization);
-
-        // WHEN
-        given()
-                .body(body)
-                .header("Content-Type", "application/json")
-                .when()
-                .post(ORGANIZATIONS_URL)
-                .then()
-                .body("id", is(notNullValue()),
-                        "name", is(organization.getName()),
-                        "description", is(nullValue()),
-                        "type", is(OrganizationType.common.toString()),
-                        "useMasterKeys", is(false),
-                        "settings.ruc", is("12312312312"),
-                        "settings.razonSocial", is("My company name"),
-                        "settings.nombreComercial", is(nullValue()),
-                        "settings.sunatUsername", is("myUsername"),
-                        "settings.sunatPassword", is("******"),
-                        "settings.sunatUrlFactura", is("myUrl1"),
-                        "settings.sunatUrlGuiaRemision", is("myUrl2"),
-                        "settings.sunatUrlPercepcionRetencion", is("myUrl3"),
-                        "settings.address", is(anything()),
-                        "settings.contacto", is(anything()));
-    }
+//    @Test
+//    void testCreateOrganizationWithMinData() throws Exception {
+//        // GIVEN
+//        OrganizationRepresentation organization = new OrganizationRepresentation();
+//        organization.setName("myCompanyName");
+//        organization.setSettings(new OrganizationRepresentation.Settings());
+//        organization.getSettings().setRuc("12312312312");
+//        organization.getSettings().setRazonSocial("My company name");
+//        organization.getSettings().setSunatUsername("myUsername");
+//        organization.getSettings().setSunatPassword("myPassword");
+//        organization.getSettings().setSunatUrlFactura("myUrl1");
+//        organization.getSettings().setSunatUrlGuiaRemision("myUrl2");
+//        organization.getSettings().setSunatUrlPercepcionRetencion("myUrl3");
+//
+//        String body = new ObjectMapper().writeValueAsString(organization);
+//
+//        // WHEN
+//        given()
+//                .body(body)
+//                .header("Content-Type", "application/json")
+//                .when()
+//                .post(ORGANIZATIONS_URL)
+//                .then()
+//                .body("id", is(notNullValue()),
+//                        "name", is(organization.getName()),
+//                        "description", is(nullValue()),
+//                        "type", is(OrganizationType.common.toString()),
+//                        "useMasterKeys", is(false),
+//                        "settings.ruc", is("12312312312"),
+//                        "settings.razonSocial", is("My company name"),
+//                        "settings.nombreComercial", is(nullValue()),
+//                        "settings.sunatUsername", is("myUsername"),
+//                        "settings.sunatPassword", is("******"),
+//                        "settings.sunatUrlFactura", is("myUrl1"),
+//                        "settings.sunatUrlGuiaRemision", is("myUrl2"),
+//                        "settings.sunatUrlPercepcionRetencion", is("myUrl3"),
+//                        "settings.address", is(anything()),
+//                        "settings.contacto", is(anything()));
+//    }
 
 //    @Test
 //    void testUpdateOrganization() throws Exception {

@@ -40,5 +40,9 @@ public interface OrganizationProvider {
 
     SearchResultsModel<OrganizationModel> searchOrganizations(String filterText, int page, int pageSize);
 
+    PageModel<OrganizationModel> getOrganizationsAsPage(PageBean pageBean, List<SortBean> sortBy);
+
+    PageModel<OrganizationModel> getOrganizationsAsPage(String filterText, PageBean pageBean, List<SortBean> sortBy);
+
     void deleteOrganization(OrganizationModel organization);
 }
