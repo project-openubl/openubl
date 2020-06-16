@@ -2,13 +2,15 @@ package io.github.project.openubl.models;
 
 public interface WSTemplateModel {
 
+    String[] SORT_BY_FIELDS = {"name"};
+
     String getId();
 
-    String getTemplateName();
+    String getName();
 
-    String getSunatUrlFacturaElectronica();
+    String getSunatUrlFactura();
 
-    void setSunatUrlFacturaElectronica(String sunatUrlFacturaElectronica);
+    void setSunatUrlFactura(String sunatUrlFactura);
 
     String getSunatUrlGuiaRemision();
 
@@ -19,16 +21,16 @@ public interface WSTemplateModel {
     void setSunatUrlPercepcionRetencion(String sunatUrlPercepcionRetencion);
 
     class MinData {
-        private String sunatUrlFacturaElectronica;
+        private String sunatUrlFactura;
         private String sunatUrlGuiaRemision;
         private String sunatUrlPercepcionRetencion;
 
-        public String getSunatUrlFacturaElectronica() {
-            return sunatUrlFacturaElectronica;
+        public String getSunatUrlFactura() {
+            return sunatUrlFactura;
         }
 
-        public void setSunatUrlFacturaElectronica(String sunatUrlFacturaElectronica) {
-            this.sunatUrlFacturaElectronica = sunatUrlFacturaElectronica;
+        public void setSunatUrlFactura(String sunatUrlFactura) {
+            this.sunatUrlFactura = sunatUrlFactura;
         }
 
         public String getSunatUrlGuiaRemision() {

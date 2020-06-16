@@ -16,8 +16,6 @@
  */
 package io.github.project.openubl.resources;
 
-import io.github.project.openubl.keys.component.ComponentModel;
-import io.github.project.openubl.keys.component.ComponentValidationException;
 import io.github.project.openubl.keys.component.utils.ComponentUtil;
 import io.github.project.openubl.managers.OrganizationManager;
 import io.github.project.openubl.models.*;
@@ -25,17 +23,11 @@ import io.github.project.openubl.models.utils.ModelToRepresentation;
 import io.github.project.openubl.models.utils.RepresentationToModel;
 import io.github.project.openubl.representations.idm.OrganizationRepresentation;
 import io.github.project.openubl.representations.idm.PageRepresentation;
-import io.github.project.openubl.representations.idm.SearchResultsRepresentation;
 import io.github.project.openubl.utils.ResourceUtils;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
-import org.keycloak.common.util.PemUtils;
-import org.keycloak.crypto.KeyWrapper;
-import org.keycloak.representations.idm.ComponentRepresentation;
-import org.keycloak.representations.idm.KeysMetadataRepresentation;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -44,12 +36,9 @@ import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Transactional
 @ApplicationScoped
@@ -88,37 +77,43 @@ public class OrganizationsResource {
     @GET
     @Path("/")
     public PageRepresentation<OrganizationRepresentation> getOrganizations(
-            @QueryParam("filterText") String filterText,
-            @QueryParam("offset") @DefaultValue("0") int offset,
-            @QueryParam("limit") @DefaultValue("10") int limit,
+            @QueryParam("name") String name,
+            @QueryParam("offset") @DefaultValue("0") Integer offset,
+            @QueryParam("limit") @DefaultValue("10") Integer limit,
             @QueryParam("sort_by") @DefaultValue("name") List<String> sortBy
     ) throws URISyntaxException {
         PageBean pageBean = ResourceUtils.getPageBean(offset, limit);
         List<SortBean> sortBeans = ResourceUtils.getSortBeans(sortBy, OrganizationModel.SORT_BY_FIELDS);
 
         PageModel<OrganizationModel> pageModel;
-        if (filterText != null && !filterText.trim().isEmpty()) {
-            pageModel = organizationProvider.getOrganizationsAsPage(filterText, pageBean, sortBeans);
+        if (name != null && !name.trim().isEmpty()) {
+            pageModel = organizationProvider.getOrganizationsAsPage(name, pageBean, sortBeans);
         } else {
             pageModel = organizationProvider.getOrganizationsAsPage(pageBean, sortBeans);
         }
 
-        List<NameValuePair> queryParameters = sortBeans.stream()
-                .map(f -> new BasicNameValuePair("sort_by", f.getQuery()))
-                .collect(Collectors.toList());
-        return modelToRepresentation.toRepresentation(pageModel, uriInfo, queryParameters);
+        List<NameValuePair> queryParameters = ResourceUtils.buildNameValuePairs(offset, limit, sortBeans);
+        if (name != null) {
+            queryParameters.add(new BasicNameValuePair("name", name));
+        }
+        return modelToRepresentation.toRepresentation(
+                pageModel,
+                model -> modelToRepresentation.toRepresentation(model),
+                uriInfo,
+                queryParameters
+        );
     }
 
-//    @POST
-//    @Path("/")
-//    public OrganizationRepresentation createOrganization(@Valid OrganizationRepresentation representation) {
-//        if (organizationProvider.getOrganizationByName(representation.getName()).isPresent()) {
-//            throw new BadRequestException("Organization with name=" + representation.getName() + " already exists");
-//        }
-//        OrganizationModel organization = organizationManager.createOrganization(representation);
-//        return modelToRepresentation.toRepresentation(organization, true);
-//    }
-//
+    @POST
+    @Path("/")
+    public OrganizationRepresentation createOrganization(@Valid OrganizationRepresentation representation) {
+        if (organizationProvider.getOrganizationByName(representation.getName()).isPresent()) {
+            throw new BadRequestException("Organization with name=" + representation.getName() + " already exists");
+        }
+        OrganizationModel organization = organizationManager.createOrganization(representation);
+        return modelToRepresentation.toRepresentation(organization);
+    }
+
 //    @GET
 //    @Path("/search")
 //    public SearchResultsRepresentation<OrganizationRepresentation> searchOrganizations(

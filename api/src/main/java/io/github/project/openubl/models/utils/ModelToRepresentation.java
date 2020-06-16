@@ -22,8 +22,10 @@ import io.github.project.openubl.keys.provider.ProviderConfigProperty;
 import io.github.project.openubl.models.OrganizationModel;
 import io.github.project.openubl.models.OrganizationSettingsModel;
 import io.github.project.openubl.models.PageModel;
+import io.github.project.openubl.models.WSTemplateModel;
 import io.github.project.openubl.representations.idm.OrganizationRepresentation;
 import io.github.project.openubl.representations.idm.PageRepresentation;
+import io.github.project.openubl.representations.idm.WSTemplateRepresentation;
 import io.github.project.openubl.resources.ApiApplication;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URIBuilder;
@@ -36,6 +38,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.core.UriInfo;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -60,7 +63,7 @@ public class ModelToRepresentation {
         repSettings.setNombreComercial(modelSettings.getNombreComercial());
         repSettings.setSunatUsername(modelSettings.getSunatUsername());
         repSettings.setSunatPassword(modelSettings.getSunatPassword() != null ? "******" : null);
-        repSettings.setSunatUrlFactura(modelSettings.getSunatUrlFacturaElectronica());
+        repSettings.setSunatUrlFactura(modelSettings.getSunatUrlFactura());
         repSettings.setSunatUrlGuiaRemision(modelSettings.getSunatUrlGuiaRemision());
         repSettings.setSunatUrlPercepcionRetencion(modelSettings.getSunatUrlPercepcionRetencion());
 
@@ -229,12 +232,24 @@ public class ModelToRepresentation {
         }
     }
 
-    public PageRepresentation<OrganizationRepresentation> toRepresentation(
-            PageModel<OrganizationModel> model,
+    public WSTemplateRepresentation toRepresentation(WSTemplateModel model){
+        WSTemplateRepresentation rep =  new WSTemplateRepresentation();
+        rep.setName(model.getName());
+        rep.setSunatUrlFactura(model.getSunatUrlFactura());
+        rep.setSunatUrlGuiaRemision(model.getSunatUrlGuiaRemision());
+        rep.setSunatUrlPercepcionRetencion(model.getSunatUrlPercepcionRetencion());
+
+        return rep;
+    }
+    public <T, R> PageRepresentation<R> toRepresentation(
+            PageModel<T> model,
+            Function<T, R> mapper,
             UriInfo serverUriInfo,
             List<NameValuePair> queryParameters
     ) throws URISyntaxException {
-        PageRepresentation<OrganizationRepresentation> rep = new PageRepresentation<>();
+        queryParameters.removeIf(f -> f.getName().equals("offset")); // The offset will be set in the current method
+
+        PageRepresentation<R> rep = new PageRepresentation<>();
 
         // Meta
         PageRepresentation.Meta repMeta = new PageRepresentation.Meta();
@@ -246,7 +261,7 @@ public class ModelToRepresentation {
 
         // Data
         rep.setData(model.getPageElements().stream()
-                .map(this::toRepresentation)
+                .map(mapper)
                 .collect(Collectors.toList())
         );
 

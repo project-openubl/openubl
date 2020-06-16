@@ -42,7 +42,7 @@ public interface OrganizationProvider {
 
     PageModel<OrganizationModel> getOrganizationsAsPage(PageBean pageBean, List<SortBean> sortBy);
 
-    PageModel<OrganizationModel> getOrganizationsAsPage(String filterText, PageBean pageBean, List<SortBean> sortBy);
+    PageModel<OrganizationModel> getOrganizationsAsPage(String name, PageBean pageBean, List<SortBean> sortBy);
 
     void deleteOrganization(OrganizationModel organization);
 }

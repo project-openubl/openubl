@@ -17,18 +17,18 @@ public class WSTemplateAdapter implements WSTemplateModel {
     }
 
     @Override
-    public String getTemplateName() {
-        return entity.getTemplateName();
+    public String getName() {
+        return entity.getName();
     }
 
     @Override
-    public String getSunatUrlFacturaElectronica() {
-        return entity.getSunatUrlFacturaElectronica();
+    public String getSunatUrlFactura() {
+        return entity.getSunatUrlFactura();
     }
 
     @Override
-    public void setSunatUrlFacturaElectronica(String sunatUrlFacturaElectronica) {
-        entity.setSunatUrlFacturaElectronica(sunatUrlFacturaElectronica);
+    public void setSunatUrlFactura(String sunatUrlFactura) {
+        entity.setSunatUrlFactura(sunatUrlFactura);
     }
 
     @Override

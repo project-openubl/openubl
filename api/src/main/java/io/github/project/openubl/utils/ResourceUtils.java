@@ -3,8 +3,9 @@ package io.github.project.openubl.utils;
 import io.github.project.openubl.models.PageBean;
 import io.github.project.openubl.models.SortBean;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.message.BasicNameValuePair;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -12,6 +13,21 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ResourceUtils {
+
+    public static List<NameValuePair> buildNameValuePairs(Integer offset, Integer limit, List<SortBean> sortBeans) {
+        List<NameValuePair> queryParameters = new ArrayList<>();
+        if (offset != null) {
+            queryParameters.add(new BasicNameValuePair("offset", String.valueOf(offset)));
+        }
+        if (limit != null) {
+            queryParameters.add(new BasicNameValuePair("limit", String.valueOf(limit)));
+        }
+        queryParameters.addAll(sortBeans.stream()
+                .map(f -> new BasicNameValuePair("sort_by", f.getQuery()))
+                .collect(Collectors.toList())
+        );
+        return queryParameters;
+    }
 
     public static PageBean getPageBean(Integer offset, Integer limit) {
         if (offset == null || offset < 0) {

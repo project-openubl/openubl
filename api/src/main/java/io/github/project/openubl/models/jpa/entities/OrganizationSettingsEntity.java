@@ -28,8 +28,8 @@ public class OrganizationSettingsEntity extends PanacheEntityBase {
     private String sunatPassword;
 
     @NotNull
-    @Column(name = "SUNAT_URL_FACTURA_ELECTRONICA")
-    private String sunatUrlFacturaElectronica;
+    @Column(name = "SUNAT_URL_FACTURA")
+    private String sunatUrlFactura;
 
     @NotNull
     @Column(name = "SUNAT_URL_GUIA_REMISION")
@@ -112,12 +112,12 @@ public class OrganizationSettingsEntity extends PanacheEntityBase {
         this.sunatPassword = sunatPassword;
     }
 
-    public String getSunatUrlFacturaElectronica() {
-        return sunatUrlFacturaElectronica;
+    public String getSunatUrlFactura() {
+        return sunatUrlFactura;
     }
 
-    public void setSunatUrlFacturaElectronica(String sunatUrlFacturaElectronica) {
-        this.sunatUrlFacturaElectronica = sunatUrlFacturaElectronica;
+    public void setSunatUrlFactura(String sunatUrlFactura) {
+        this.sunatUrlFactura = sunatUrlFactura;
     }
 
     public String getSunatUrlGuiaRemision() {

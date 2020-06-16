@@ -32,20 +32,86 @@ import java.util.*;
 @ApplicationScoped
 public class RepresentationToModel {
 
+    public boolean validField(String value) {
+        return value != null && !value.trim().isEmpty();
+    }
+
     public void updateOrganization(OrganizationRepresentation rep, OrganizationModel model) {
         if (rep.getName() != null) {
-            model.setName(rep.getName());
+            model.setName(rep.getName().trim());
         }
         if (rep.getDescription() != null) {
-            model.setDescription(rep.getDescription());
+            model.setDescription(rep.getDescription().trim());
         }
         if (rep.getUseMasterKeys() != null) {
             model.setUseCustomCertificates(rep.getUseMasterKeys());
         }
 
         // Settings
-//        OrganizationSettingsModel modelSettings = organizationSettingsProvider.getSettings(model).orElseThrow(IllegalAccessError::new);
+        if (rep.getSettings() != null) {
+            OrganizationSettingsModel modelSettings = model.getSettings();
 
+            if (validField(rep.getSettings().getRuc())) {
+                modelSettings.setRuc(rep.getSettings().getRuc().trim());
+            }
+            if (validField(rep.getSettings().getRazonSocial())) {
+                modelSettings.setRazonSocial(rep.getSettings().getRazonSocial().trim());
+            }
+            if (validField(rep.getSettings().getNombreComercial())) {
+                modelSettings.setNombreComercial(rep.getSettings().getNombreComercial().trim());
+            }
+            if (validField(rep.getSettings().getSunatUsername())) {
+                modelSettings.setSunatUsername(rep.getSettings().getSunatUsername().trim());
+            }
+            if (validField(rep.getSettings().getSunatPassword())) {
+                modelSettings.setSunatPassword(rep.getSettings().getSunatPassword().trim());
+            }
+            if (validField(rep.getSettings().getSunatUrlFactura())) {
+                modelSettings.setSunatUrlFactura(rep.getSettings().getSunatUrlFactura().trim());
+            }
+            if (validField(rep.getSettings().getSunatUrlGuiaRemision())) {
+                modelSettings.setSunatUrlGuiaRemision(rep.getSettings().getSunatUrlGuiaRemision().trim());
+            }
+            if (validField(rep.getSettings().getSunatUrlPercepcionRetencion())) {
+                modelSettings.setSunatUrlPercepcionRetencion(rep.getSettings().getSunatUrlPercepcionRetencion().trim());
+            }
+
+            if (rep.getSettings().getContact() != null) {
+                if (validField(rep.getSettings().getContact().getTelefono())) {
+                    modelSettings.setTelefono(rep.getSettings().getContact().getTelefono().trim());
+                }
+                if (validField(rep.getSettings().getContact().getEmail())) {
+                    modelSettings.setEmail(rep.getSettings().getContact().getEmail().trim());
+                }
+            }
+
+            if (rep.getSettings().getAddress() != null) {
+                if (validField(rep.getSettings().getAddress().getUbigeo())) {
+                    modelSettings.setUbigeo(rep.getSettings().getAddress().getUbigeo().trim());
+                }
+                if (validField(rep.getSettings().getAddress().getDepartamento())) {
+                    modelSettings.setDepartamento(rep.getSettings().getAddress().getDepartamento().trim());
+                }
+                if (validField(rep.getSettings().getAddress().getProvincia())) {
+                    modelSettings.setProvincia(rep.getSettings().getAddress().getProvincia().trim());
+                }
+                if (validField(rep.getSettings().getAddress().getDistrito())) {
+                    modelSettings.setDistrito(rep.getSettings().getAddress().getDistrito().trim());
+                }
+                if (validField(rep.getSettings().getAddress().getDireccion())) {
+                    modelSettings.setDireccion(rep.getSettings().getAddress().getDireccion().trim());
+                }
+                if (validField(rep.getSettings().getAddress().getUrbanizacion())) {
+                    modelSettings.setUrbanizacion(rep.getSettings().getAddress().getUrbanizacion().trim());
+                }
+                if (validField(rep.getSettings().getAddress().getCodigoLocal())) {
+                    modelSettings.setCodigoLocal(rep.getSettings().getAddress().getCodigoLocal().trim());
+                }
+                if (validField(rep.getSettings().getAddress().getCodigoPais())) {
+                    modelSettings.setCodigoPais(rep.getSettings().getAddress().getCodigoPais().trim());
+                }
+            }
+        }
     }
 
     public ComponentModel toModel(ComponentRepresentation rep) {

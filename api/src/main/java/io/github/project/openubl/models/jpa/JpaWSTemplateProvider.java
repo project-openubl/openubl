@@ -1,8 +1,10 @@
 package io.github.project.openubl.models.jpa;
 
-import io.github.project.openubl.models.WSTemplateModel;
-import io.github.project.openubl.models.WSTemplateProvider;
+import io.github.project.openubl.models.*;
+import io.github.project.openubl.models.jpa.entities.OrganizationEntity;
 import io.github.project.openubl.models.jpa.entities.WSTemplateEntity;
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
+import io.quarkus.panache.common.Sort;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.transaction.Transactional;
@@ -25,8 +27,8 @@ public class JpaWSTemplateProvider implements WSTemplateProvider {
     }
 
     @Override
-    public Optional<WSTemplateModel> getByName(String templateName) {
-        WSTemplateEntity entity = WSTemplateEntity.find("templateName", templateName).firstResult();
+    public Optional<WSTemplateModel> getByName(String name) {
+        WSTemplateEntity entity = WSTemplateEntity.find("name", name).firstResult();
         if (entity == null) {
             return Optional.empty();
         }
@@ -34,18 +36,18 @@ public class JpaWSTemplateProvider implements WSTemplateProvider {
     }
 
     @Override
-    public WSTemplateModel add(String templateName, WSTemplateModel.MinData data) {
-        return add(UUID.randomUUID().toString(), templateName, data);
+    public WSTemplateModel add(String name, WSTemplateModel.MinData data) {
+        return add(UUID.randomUUID().toString(), name, data);
     }
 
     @Override
-    public WSTemplateModel add(String templateId, String templateName, WSTemplateModel.MinData data) {
+    public WSTemplateModel add(String templateId, String name, WSTemplateModel.MinData data) {
         WSTemplateEntity entity = new WSTemplateEntity();
 
         entity.setId(templateId);
-        entity.setTemplateName(templateName);
+        entity.setName(name);
 
-        entity.setSunatUrlFacturaElectronica(data.getSunatUrlFacturaElectronica());
+        entity.setSunatUrlFactura(data.getSunatUrlFactura());
         entity.setSunatUrlGuiaRemision(data.getSunatUrlGuiaRemision());
         entity.setSunatUrlPercepcionRetencion(data.getSunatUrlPercepcionRetencion());
 
@@ -60,5 +62,36 @@ public class JpaWSTemplateProvider implements WSTemplateProvider {
         return entities.stream()
                 .map(WSTemplateAdapter::new)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public PageModel<WSTemplateModel> getTemplatesAsPage(PageBean pageBean, List<SortBean> sortBy) {
+        Sort sort = Sort.by();
+        sortBy.forEach(f -> sort.and(f.getFieldName(), f.isAsc() ? Sort.Direction.Ascending : Sort.Direction.Descending));
+
+        PanacheQuery<WSTemplateEntity> query = WSTemplateEntity.findAll(sort)
+                .range(pageBean.getOffset(), pageBean.getLimit());
+
+        long count = query.count();
+        List<WSTemplateModel> list = query.list().stream()
+                .map(WSTemplateAdapter::new)
+                .collect(Collectors.toList());
+        return new PageModel<>(pageBean, count, list);
+    }
+
+    @Override
+    public PageModel<WSTemplateModel> getTemplatesAsPage(String name, PageBean pageBean, List<SortBean> sortBy) {
+        Sort sort = Sort.by();
+        sortBy.forEach(f -> sort.and(f.getFieldName(), f.isAsc() ? Sort.Direction.Ascending : Sort.Direction.Descending));
+
+        PanacheQuery<WSTemplateEntity> query = WSTemplateEntity
+                .find("From WSTemplateEntity as o where lower(o.name) like ?1", "%" + name.toLowerCase() + "%")
+                .range(pageBean.getOffset(), pageBean.getLimit());
+
+        long count = query.count();
+        List<WSTemplateModel> list = query.list().stream()
+                .map(WSTemplateAdapter::new)
+                .collect(Collectors.toList());
+        return new PageModel<>(pageBean, count, list);
     }
 }

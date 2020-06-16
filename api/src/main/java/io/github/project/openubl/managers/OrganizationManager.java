@@ -48,7 +48,7 @@ public class OrganizationManager {
         settingsMinData.setRazonSocial(rep.getSettings().getRazonSocial());
         settingsMinData.setSunatUsername(rep.getSettings().getSunatUsername());
         settingsMinData.setSunatPassword(rep.getSettings().getSunatPassword());
-        settingsMinData.setSunatUrlFacturaElectronica(rep.getSettings().getSunatUrlFactura());
+        settingsMinData.setSunatUrlFactura(rep.getSettings().getSunatUrlFactura());
         settingsMinData.setSunatUrlGuiaRemision(rep.getSettings().getSunatUrlGuiaRemision());
         settingsMinData.setSunatUrlPercepcionRetencion(rep.getSettings().getSunatUrlPercepcionRetencion());
 

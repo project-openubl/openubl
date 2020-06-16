@@ -10,8 +10,8 @@ public interface OrganizationSettingsModel {
     String getSunatPassword();
     void setSunatPassword(String sunatPassword);
 
-    String getSunatUrlFacturaElectronica();
-    void setSunatUrlFacturaElectronica(String sunatUrlFacturaElectronica);
+    String getSunatUrlFactura();
+    void setSunatUrlFactura(String sunatUrlFactura);
 
     String getSunatUrlGuiaRemision();
     void setSunatUrlGuiaRemision(String sunatUrlGuiaRemision);
@@ -63,16 +63,16 @@ public interface OrganizationSettingsModel {
         private String razonSocial;
         private String sunatUsername;
         private String sunatPassword;
-        private String sunatUrlFacturaElectronica;
+        private String sunatUrlFactura;
         private String sunatUrlGuiaRemision;
         private String sunatUrlPercepcionRetencion;
 
-        public String getSunatUrlFacturaElectronica() {
-            return sunatUrlFacturaElectronica;
+        public String getSunatUrlFactura() {
+            return sunatUrlFactura;
         }
 
-        public void setSunatUrlFacturaElectronica(String sunatUrlFacturaElectronica) {
-            this.sunatUrlFacturaElectronica = sunatUrlFacturaElectronica;
+        public void setSunatUrlFactura(String sunatUrlFactura) {
+            this.sunatUrlFactura = sunatUrlFactura;
         }
 
         public String getSunatUrlGuiaRemision() {

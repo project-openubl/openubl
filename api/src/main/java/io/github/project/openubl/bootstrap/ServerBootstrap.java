@@ -108,7 +108,7 @@ public class ServerBootstrap {
     @Transactional
     private void createTemplate(String templateId, String facturaUrl, String guiaUrl, String percepcionRetencionUrl) {
         WSTemplateModel.MinData templateData = new WSTemplateModel.MinData();
-        templateData.setSunatUrlFacturaElectronica(facturaUrl);
+        templateData.setSunatUrlFactura(facturaUrl);
         templateData.setSunatUrlGuiaRemision(guiaUrl);
         templateData.setSunatUrlPercepcionRetencion(percepcionRetencionUrl);
 
@@ -128,7 +128,7 @@ public class ServerBootstrap {
         orgSettingsMinData.setRazonSocial(orgDemoRazonSocial);
         orgSettingsMinData.setSunatUsername(orgDemoSunatUsername);
         orgSettingsMinData.setSunatPassword(orgDemoSunatPassword);
-        orgSettingsMinData.setSunatUrlFacturaElectronica(wsTemplate.getSunatUrlFacturaElectronica());
+        orgSettingsMinData.setSunatUrlFactura(wsTemplate.getSunatUrlFactura());
         orgSettingsMinData.setSunatUrlGuiaRemision(wsTemplate.getSunatUrlGuiaRemision());
         orgSettingsMinData.setSunatUrlPercepcionRetencion(wsTemplate.getSunatUrlPercepcionRetencion());
 

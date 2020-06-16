@@ -10,12 +10,16 @@ public interface WSTemplateProvider {
 
     Optional<WSTemplateModel> getById(String templateId);
 
-    Optional<WSTemplateModel> getByName(String templateName);
+    Optional<WSTemplateModel> getByName(String name);
 
-    WSTemplateModel add(String templateName, WSTemplateModel.MinData data);
+    WSTemplateModel add(String name, WSTemplateModel.MinData data);
 
-    WSTemplateModel add(String templateId, String templateName, WSTemplateModel.MinData data);
+    WSTemplateModel add(String templateId, String name, WSTemplateModel.MinData data);
 
     List<WSTemplateModel> getAll();
+
+    PageModel<WSTemplateModel> getTemplatesAsPage(PageBean pageBean, List<SortBean> sortBy);
+
+    PageModel<WSTemplateModel> getTemplatesAsPage(String name, PageBean pageBean, List<SortBean> sortBy);
 
 }

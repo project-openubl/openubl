@@ -52,7 +52,7 @@ public class JpaOrganizationProvider implements OrganizationProvider {
         settingsEntity.setRazonSocial(data.getRazonSocial());
         settingsEntity.setSunatUsername(data.getSunatUsername());
         settingsEntity.setSunatPassword(data.getSunatPassword());
-        settingsEntity.setSunatUrlFacturaElectronica(data.getSunatUrlFacturaElectronica());
+        settingsEntity.setSunatUrlFactura(data.getSunatUrlFactura());
         settingsEntity.setSunatUrlGuiaRemision(data.getSunatUrlGuiaRemision());
         settingsEntity.setSunatUrlPercepcionRetencion(data.getSunatUrlPercepcionRetencion());
 
@@ -108,7 +108,7 @@ public class JpaOrganizationProvider implements OrganizationProvider {
     @Override
     public List<OrganizationModel> getOrganizations(String filterText, int offset, int limit) {
         TypedQuery<OrganizationEntity> query = em.createNamedQuery("FilterOrganizations", OrganizationEntity.class);
-        query.setParameter("filterText", "%" + filterText.toLowerCase());
+        query.setParameter("filterText", "%" + filterText.toLowerCase() + "%");
         if (offset != -1) {
             query.setFirstResult(offset);
         }
@@ -172,12 +172,12 @@ public class JpaOrganizationProvider implements OrganizationProvider {
     }
 
     @Override
-    public PageModel<OrganizationModel> getOrganizationsAsPage(String filterText, PageBean pageBean, List<SortBean> sortBy) {
+    public PageModel<OrganizationModel> getOrganizationsAsPage(String name, PageBean pageBean, List<SortBean> sortBy) {
         Sort sort = Sort.by();
         sortBy.forEach(f -> sort.and(f.getFieldName(), f.isAsc() ? Sort.Direction.Ascending : Sort.Direction.Descending));
 
         PanacheQuery<OrganizationEntity> query = OrganizationEntity
-                .find("From OrganizationEntity as o where lower(o.name) like ?1", "%" + filterText.toLowerCase())
+                .find("From OrganizationEntity as o where lower(o.name) like ?1", "%" + name.toLowerCase() + "%")
                 .range(pageBean.getOffset(), pageBean.getLimit());
 
         long count = query.count();
