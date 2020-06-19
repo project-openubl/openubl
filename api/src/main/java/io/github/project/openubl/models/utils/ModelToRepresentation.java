@@ -69,7 +69,7 @@ public class ModelToRepresentation {
 
 
         OrganizationRepresentation.Address repAddress = new OrganizationRepresentation.Address();
-        repSettings.setAddress(repAddress);
+        repSettings.setDomicilioFiscal(repAddress);
 
         repAddress.setCodigoLocal(modelSettings.getCodigoLocal());
         repAddress.setCodigoPais(modelSettings.getCodigoPais());
@@ -82,7 +82,7 @@ public class ModelToRepresentation {
 
 
         OrganizationRepresentation.Contact repContact = new OrganizationRepresentation.Contact();
-        repSettings.setContact(repContact);
+        repSettings.setContacto(repContact);
 
         repContact.setEmail(modelSettings.getEmail());
         repContact.setTelefono(modelSettings.getTelefono());

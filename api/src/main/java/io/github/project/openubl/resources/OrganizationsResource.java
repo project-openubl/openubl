@@ -177,19 +177,19 @@ public class OrganizationsResource {
         return modelToRepresentation.toRepresentation(organization);
     }
 
-//    @DELETE
-//    @Path("/{organizationId}")
-//    public void deleteOrganization(
-//            @PathParam("organizationId") String organizationId
-//    ) {
-//        OrganizationModel organization = organizationProvider.getOrganizationById(organizationId).orElseThrow(() -> new NotFoundException("Organization not found"));
-//        if (OrganizationModel.MASTER_ID.equals(organization.getId())) {
-//            throw new BadRequestException("La organización 'master' no puede ser elminada");
-//        }
-//
-//        organizationProvider.deleteOrganization(organization);
-//    }
-//
+    @DELETE
+    @Path("/{organizationId}")
+    public void deleteOrganization(
+            @PathParam("organizationId") String organizationId
+    ) {
+        OrganizationModel organization = organizationProvider.getOrganizationById(organizationId).orElseThrow(() -> new NotFoundException("Organization not found"));
+        if (OrganizationModel.MASTER_ID.equals(organization.getId())) {
+            throw new BadRequestException("La organización 'master' no puede ser elminada");
+        }
+
+        organizationProvider.deleteOrganization(organization);
+    }
+
 //    @GET
 //    @Path("/{organizationId}/keys")
 //    @Produces(MediaType.APPLICATION_JSON)

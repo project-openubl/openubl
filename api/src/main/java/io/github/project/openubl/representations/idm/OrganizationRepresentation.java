@@ -66,10 +66,10 @@ public class OrganizationRepresentation {
         private String sunatUrlPercepcionRetencion;
 
         @Valid
-        private Address address;
+        private Address domicilioFiscal;
 
         @Valid
-        private Contact contact;
+        private Contact contacto;
 
         public String getRuc() {
             return ruc;
@@ -95,20 +95,20 @@ public class OrganizationRepresentation {
             this.nombreComercial = nombreComercial;
         }
 
-        public Address getAddress() {
-            return address;
+        public Address getDomicilioFiscal() {
+            return domicilioFiscal;
         }
 
-        public void setAddress(Address address) {
-            this.address = address;
+        public void setDomicilioFiscal(Address domicilioFiscal) {
+            this.domicilioFiscal = domicilioFiscal;
         }
 
-        public Contact getContact() {
-            return contact;
+        public Contact getContacto() {
+            return contacto;
         }
 
-        public void setContact(Contact contact) {
-            this.contact = contact;
+        public void setContacto(Contact contacto) {
+            this.contacto = contacto;
         }
 
         public String getSunatUsername() {

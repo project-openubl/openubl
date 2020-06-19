@@ -26,7 +26,6 @@ import org.keycloak.common.util.MultivaluedHashMap;
 import org.keycloak.representations.idm.ComponentRepresentation;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.util.*;
 
 @ApplicationScoped
@@ -74,39 +73,39 @@ public class RepresentationToModel {
                 modelSettings.setSunatUrlPercepcionRetencion(rep.getSettings().getSunatUrlPercepcionRetencion().trim());
             }
 
-            if (rep.getSettings().getContact() != null) {
-                if (validField(rep.getSettings().getContact().getTelefono())) {
-                    modelSettings.setTelefono(rep.getSettings().getContact().getTelefono().trim());
+            if (rep.getSettings().getContacto() != null) {
+                if (validField(rep.getSettings().getContacto().getTelefono())) {
+                    modelSettings.setTelefono(rep.getSettings().getContacto().getTelefono().trim());
                 }
-                if (validField(rep.getSettings().getContact().getEmail())) {
-                    modelSettings.setEmail(rep.getSettings().getContact().getEmail().trim());
+                if (validField(rep.getSettings().getContacto().getEmail())) {
+                    modelSettings.setEmail(rep.getSettings().getContacto().getEmail().trim());
                 }
             }
 
-            if (rep.getSettings().getAddress() != null) {
-                if (validField(rep.getSettings().getAddress().getUbigeo())) {
-                    modelSettings.setUbigeo(rep.getSettings().getAddress().getUbigeo().trim());
+            if (rep.getSettings().getDomicilioFiscal() != null) {
+                if (validField(rep.getSettings().getDomicilioFiscal().getUbigeo())) {
+                    modelSettings.setUbigeo(rep.getSettings().getDomicilioFiscal().getUbigeo().trim());
                 }
-                if (validField(rep.getSettings().getAddress().getDepartamento())) {
-                    modelSettings.setDepartamento(rep.getSettings().getAddress().getDepartamento().trim());
+                if (validField(rep.getSettings().getDomicilioFiscal().getDepartamento())) {
+                    modelSettings.setDepartamento(rep.getSettings().getDomicilioFiscal().getDepartamento().trim());
                 }
-                if (validField(rep.getSettings().getAddress().getProvincia())) {
-                    modelSettings.setProvincia(rep.getSettings().getAddress().getProvincia().trim());
+                if (validField(rep.getSettings().getDomicilioFiscal().getProvincia())) {
+                    modelSettings.setProvincia(rep.getSettings().getDomicilioFiscal().getProvincia().trim());
                 }
-                if (validField(rep.getSettings().getAddress().getDistrito())) {
-                    modelSettings.setDistrito(rep.getSettings().getAddress().getDistrito().trim());
+                if (validField(rep.getSettings().getDomicilioFiscal().getDistrito())) {
+                    modelSettings.setDistrito(rep.getSettings().getDomicilioFiscal().getDistrito().trim());
                 }
-                if (validField(rep.getSettings().getAddress().getDireccion())) {
-                    modelSettings.setDireccion(rep.getSettings().getAddress().getDireccion().trim());
+                if (validField(rep.getSettings().getDomicilioFiscal().getDireccion())) {
+                    modelSettings.setDireccion(rep.getSettings().getDomicilioFiscal().getDireccion().trim());
                 }
-                if (validField(rep.getSettings().getAddress().getUrbanizacion())) {
-                    modelSettings.setUrbanizacion(rep.getSettings().getAddress().getUrbanizacion().trim());
+                if (validField(rep.getSettings().getDomicilioFiscal().getUrbanizacion())) {
+                    modelSettings.setUrbanizacion(rep.getSettings().getDomicilioFiscal().getUrbanizacion().trim());
                 }
-                if (validField(rep.getSettings().getAddress().getCodigoLocal())) {
-                    modelSettings.setCodigoLocal(rep.getSettings().getAddress().getCodigoLocal().trim());
+                if (validField(rep.getSettings().getDomicilioFiscal().getCodigoLocal())) {
+                    modelSettings.setCodigoLocal(rep.getSettings().getDomicilioFiscal().getCodigoLocal().trim());
                 }
-                if (validField(rep.getSettings().getAddress().getCodigoPais())) {
-                    modelSettings.setCodigoPais(rep.getSettings().getAddress().getCodigoPais().trim());
+                if (validField(rep.getSettings().getDomicilioFiscal().getCodigoPais())) {
+                    modelSettings.setCodigoPais(rep.getSettings().getDomicilioFiscal().getCodigoPais().trim());
                 }
             }
         }
