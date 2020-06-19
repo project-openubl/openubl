@@ -37,9 +37,7 @@ public class RepresentationToModel {
     }
 
     public void updateOrganization(OrganizationRepresentation rep, OrganizationModel model) {
-        if (rep.getName() != null) {
-            model.setName(rep.getName().trim());
-        }
+
         if (rep.getDescription() != null) {
             model.setDescription(rep.getDescription().trim());
         }
@@ -63,7 +61,7 @@ public class RepresentationToModel {
             if (validField(rep.getSettings().getSunatUsername())) {
                 modelSettings.setSunatUsername(rep.getSettings().getSunatUsername().trim());
             }
-            if (validField(rep.getSettings().getSunatPassword())) {
+            if (validField(rep.getSettings().getSunatPassword()) && !rep.getSettings().getSunatPassword().trim().equals("******")) {
                 modelSettings.setSunatPassword(rep.getSettings().getSunatPassword().trim());
             }
             if (validField(rep.getSettings().getSunatUrlFactura())) {

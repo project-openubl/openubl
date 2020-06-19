@@ -132,10 +132,6 @@ public class ModelToRepresentation {
     }
 
     public void updateOrganization(OrganizationRepresentation rep, OrganizationModel model) {
-        if (rep.getName() != null) {
-            model.setName(rep.getName());
-        }
-
         if (rep.getDescription() != null) {
             model.setDescription(rep.getDescription());
         }

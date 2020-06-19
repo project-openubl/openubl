@@ -62,11 +62,6 @@ public class OrganizationAdapter implements OrganizationModel, JpaModel<Organiza
     }
 
     @Override
-    public void setName(String name) {
-        organization.setName(name);
-    }
-
-    @Override
     public String getDescription() {
         return organization.getDescription();
     }

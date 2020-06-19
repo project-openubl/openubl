@@ -114,7 +114,7 @@ public class OrganizationsResource {
         return modelToRepresentation.toRepresentation(organization);
     }
 
-//    @GET
+    //    @GET
 //    @Path("/search")
 //    public SearchResultsRepresentation<OrganizationRepresentation> searchOrganizations(
 //            @QueryParam("filterText") String filterText,
@@ -155,27 +155,28 @@ public class OrganizationsResource {
 //                .orElse(null);
 //    }
 //
-//    @GET
-//    @Path("/{organizationId}")
-//    public OrganizationRepresentation getOrganization(
-//            @PathParam("organizationId") String organizationId
-//    ) {
-//        return organizationProvider.getOrganizationById(organizationId)
-//                .map(organizationModel -> modelToRepresentation.toRepresentation(organizationModel, true))
-//                .orElseThrow(() -> new NotFoundException("Organization not found"));
-//    }
-//
-//    @PUT
-//    @Path("/{organizationId}")
-//    public OrganizationRepresentation updateOrganization(
-//            @PathParam("organizationId") String organizationId,
-//            OrganizationRepresentation rep
-//    ) {
-//        OrganizationModel organization = organizationProvider.getOrganizationById(organizationId).orElseThrow(() -> new NotFoundException("Organization not found"));
-//        representationToModel.updateOrganization(rep, organization);
-//        return modelToRepresentation.toRepresentation(organization, true);
-//    }
-//
+    @GET
+    @Path("/{organizationId}")
+    public OrganizationRepresentation getOrganization(
+            @PathParam("organizationId") String organizationId
+    ) {
+        return organizationProvider.getOrganizationById(organizationId)
+                .map(organizationModel -> modelToRepresentation.toRepresentation(organizationModel))
+                .orElseThrow(() -> new NotFoundException("Organization not found"));
+    }
+
+    @PUT
+    @Path("/{organizationId}")
+    public OrganizationRepresentation updateOrganization(
+            @PathParam("organizationId") String organizationId,
+            OrganizationRepresentation rep
+    ) {
+        OrganizationModel organization = organizationProvider.getOrganizationById(organizationId)
+                .orElseThrow(() -> new NotFoundException("Organization not found"));
+        representationToModel.updateOrganization(rep, organization);
+        return modelToRepresentation.toRepresentation(organization);
+    }
+
 //    @DELETE
 //    @Path("/{organizationId}")
 //    public void deleteOrganization(
