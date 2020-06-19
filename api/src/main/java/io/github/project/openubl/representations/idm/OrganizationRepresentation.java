@@ -17,14 +17,13 @@
 package io.github.project.openubl.representations.idm;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 
 public class OrganizationRepresentation {
 
     private String id;
+
+    @Pattern(regexp = "^[-a-zA-Z0-9]+$")
     private String name;
     private String description;
 
@@ -38,6 +37,7 @@ public class OrganizationRepresentation {
     public static class Settings {
         @NotNull
         @NotEmpty
+        @Size(min = 11, max = 11)
         private String ruc;
 
         @NotNull
