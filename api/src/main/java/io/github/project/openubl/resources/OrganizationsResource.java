@@ -16,6 +16,8 @@
  */
 package io.github.project.openubl.resources;
 
+import io.github.project.openubl.keys.component.ComponentModel;
+import io.github.project.openubl.keys.component.ComponentValidationException;
 import io.github.project.openubl.keys.component.utils.ComponentUtil;
 import io.github.project.openubl.managers.OrganizationManager;
 import io.github.project.openubl.models.*;
@@ -28,6 +30,10 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
+import org.keycloak.common.util.PemUtils;
+import org.keycloak.crypto.KeyWrapper;
+import org.keycloak.representations.idm.ComponentRepresentation;
+import org.keycloak.representations.idm.KeysMetadataRepresentation;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -36,8 +42,11 @@ import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 @Transactional
@@ -184,163 +193,163 @@ public class OrganizationsResource {
     ) {
         OrganizationModel organization = organizationProvider.getOrganizationById(organizationId).orElseThrow(() -> new NotFoundException("Organization not found"));
         if (OrganizationModel.MASTER_ID.equals(organization.getId())) {
-            throw new BadRequestException("La organización 'master' no puede ser elminada");
+            throw new ForbiddenException("La organización 'master' no puede ser elminada");
         }
 
         organizationProvider.deleteOrganization(organization);
     }
 
-//    @GET
-//    @Path("/{organizationId}/keys")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public KeysMetadataRepresentation getKeyMetadata(
-//            @PathParam("organizationId") final String organizationId
-//    ) {
-//        OrganizationModel organization = organizationProvider.getOrganizationById(organizationId).orElseThrow(() -> new NotFoundException("Organization not found"));
-//
-//        KeysMetadataRepresentation keys = new KeysMetadataRepresentation();
-//        keys.setKeys(new LinkedList<>());
-//        keys.setActive(new HashMap<>());
-//
-//        for (KeyWrapper key : keystore.getKeys(organization)) {
-//            KeysMetadataRepresentation.KeyMetadataRepresentation r = new KeysMetadataRepresentation.KeyMetadataRepresentation();
-//            r.setProviderId(key.getProviderId());
-//            r.setProviderPriority(key.getProviderPriority());
-//            r.setKid(key.getKid());
-//            r.setStatus(key.getStatus() != null ? key.getStatus().name() : null);
-//            r.setType(key.getType());
-//            r.setAlgorithm(key.getAlgorithm());
-//            r.setPublicKey(key.getPublicKey() != null ? PemUtils.encodeKey(key.getPublicKey()) : null);
-//            r.setCertificate(key.getCertificate() != null ? PemUtils.encodeCertificate(key.getCertificate()) : null);
-//            keys.getKeys().add(r);
-//
-//            if (key.getStatus().isActive()) {
-//                if (!keys.getActive().containsKey(key.getAlgorithm())) {
-//                    keys.getActive().put(key.getAlgorithm(), key.getKid());
-//                }
-//            }
-//        }
-//
-//        return keys;
-//    }
-//
-//    @GET
-//    @Path("/{organizationId}/components")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public List<ComponentRepresentation> getComponents(
-//            @PathParam("organizationId") final String organizationId,
-//            @QueryParam("parent") String parent,
-//            @QueryParam("type") String type,
-//            @QueryParam("name") String name
-//    ) {
-//        OrganizationModel organization = organizationProvider.getOrganizationById(organizationId).orElseThrow(() -> new NotFoundException("Organization not found"));
-//
-//        List<ComponentModel> components;
-//        if (parent == null && type == null) {
-//            components = componentProvider.getComponents(organization);
-//        } else if (type == null) {
-//            components = componentProvider.getComponents(organization, parent);
-//        } else if (parent == null) {
-//            components = componentProvider.getComponents(organization, organization.getId(), type);
-//        } else {
-//            components = componentProvider.getComponents(organization, parent, type);
-//        }
-//        List<ComponentRepresentation> reps = new LinkedList<>();
-//        for (ComponentModel component : components) {
-//            if (name != null && !name.equals(component.getName())) continue;
-//            ComponentRepresentation rep = null;
-//            try {
-//                rep = modelToRepresentation.toRepresentation(component, false, componentUtil);
-//            } catch (Exception e) {
-//                logger.error("Failed to get component list for component model" + component.getName() + "of organization " + organization.getName());
-//                rep = modelToRepresentation.toRepresentationWithoutConfig(component);
-//            }
-//            reps.add(rep);
-//        }
-//        return reps;
-//    }
-//
-//    @POST
-//    @Path("/{organizationId}/components")
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    public Response createComponent(
-//            @PathParam("organizationId") final String organizationId, ComponentRepresentation rep
-//    ) {
-//        OrganizationModel organization = organizationProvider.getOrganizationById(organizationId).orElseThrow(() -> new NotFoundException("Organization not found"));
-//
-//        try {
-//            ComponentModel model = representationToModel.toModel(rep);
-//            if (model.getParentId() == null) model.setParentId(organization.getId());
-//
-//            model = componentProvider.addComponentModel(organization, model);
-//
-//            return Response.created(uriInfo.getAbsolutePathBuilder().path(model.getId()).build()).build();
-//        } catch (ComponentValidationException e) {
-//            return Response.status(Response.Status.BAD_REQUEST)
-//                    .entity(e.getMessage())
-//                    .type(MediaType.APPLICATION_JSON)
-//                    .build();
-//        }
-//    }
-//
-//    @GET
-//    @Path("/{organizationId}/components/{componentId}")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public ComponentRepresentation getComponent(
-//            @PathParam("organizationId") final String organizationId,
-//            @PathParam("componentId") String componentId
-//    ) {
-//        OrganizationModel organization = organizationProvider.getOrganizationById(organizationId).orElseThrow(() -> new NotFoundException("Organization not found"));
-//
-//        ComponentModel model = componentProvider.getComponent(organization, componentId);
-//        if (model == null) {
-//            throw new NotFoundException("Could not find component");
-//        }
-//
-//        return modelToRepresentation.toRepresentation(model, false, componentUtil);
-//    }
-//
-//    @PUT
-//    @Path("/{organizationId}/components/{componentId}")
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    public Response updateComponent(
-//            @PathParam("organizationId") final String organizationId,
-//            @PathParam("componentId") String componentId,
-//            ComponentRepresentation rep
-//    ) {
-//        OrganizationModel organization = organizationProvider.getOrganizationById(organizationId).orElseThrow(() -> new NotFoundException("Organization not found"));
-//
-//        try {
-//            ComponentModel model = componentProvider.getComponent(organization, componentId);
-//            if (model == null) {
-//                throw new NotFoundException("Could not find component");
-//            }
-//            representationToModel.updateComponent(rep, model, false, componentUtil);
-//
-//            componentProvider.updateComponent(organization, model);
-//            return Response.noContent().build();
-//        } catch (ComponentValidationException e) {
-//            return Response.status(Response.Status.BAD_REQUEST)
-//                    .entity(e.getMessage())
-//                    .type(MediaType.APPLICATION_JSON)
-//                    .build();
-//        }
-//    }
-//
-//    @DELETE
-//    @Path("/{organizationId}/components/{componentId}")
-//    public void removeComponent(
-//            @PathParam("organizationId") final String organizationId,
-//            @PathParam("componentId") String componentId
-//    ) {
-//        OrganizationModel organization = organizationProvider.getOrganizationById(organizationId).orElseThrow(() -> new NotFoundException("Organization not found"));
-//
-//        ComponentModel model = componentProvider.getComponent(organization, componentId);
-//        if (model == null) {
-//            throw new NotFoundException("Could not find component");
-//        }
-//
-//        componentProvider.removeComponent(organization, model);
-//    }
+    @GET
+    @Path("/{organizationId}/keys")
+    @Produces(MediaType.APPLICATION_JSON)
+    public KeysMetadataRepresentation getKeyMetadata(
+            @PathParam("organizationId") final String organizationId
+    ) {
+        OrganizationModel organization = organizationProvider.getOrganizationById(organizationId).orElseThrow(() -> new NotFoundException("Organization not found"));
+
+        KeysMetadataRepresentation keys = new KeysMetadataRepresentation();
+        keys.setKeys(new LinkedList<>());
+        keys.setActive(new HashMap<>());
+
+        for (KeyWrapper key : keystore.getKeys(organization)) {
+            KeysMetadataRepresentation.KeyMetadataRepresentation r = new KeysMetadataRepresentation.KeyMetadataRepresentation();
+            r.setProviderId(key.getProviderId());
+            r.setProviderPriority(key.getProviderPriority());
+            r.setKid(key.getKid());
+            r.setStatus(key.getStatus() != null ? key.getStatus().name() : null);
+            r.setType(key.getType());
+            r.setAlgorithm(key.getAlgorithm());
+            r.setPublicKey(key.getPublicKey() != null ? PemUtils.encodeKey(key.getPublicKey()) : null);
+            r.setCertificate(key.getCertificate() != null ? PemUtils.encodeCertificate(key.getCertificate()) : null);
+            keys.getKeys().add(r);
+
+            if (key.getStatus().isActive()) {
+                if (!keys.getActive().containsKey(key.getAlgorithm())) {
+                    keys.getActive().put(key.getAlgorithm(), key.getKid());
+                }
+            }
+        }
+
+        return keys;
+    }
+
+    @GET
+    @Path("/{organizationId}/components")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<ComponentRepresentation> getComponents(
+            @PathParam("organizationId") final String organizationId,
+            @QueryParam("parent") String parent,
+            @QueryParam("type") String type,
+            @QueryParam("name") String name
+    ) {
+        OrganizationModel organization = organizationProvider.getOrganizationById(organizationId).orElseThrow(() -> new NotFoundException("Organization not found"));
+
+        List<ComponentModel> components;
+        if (parent == null && type == null) {
+            components = componentProvider.getComponents(organization);
+        } else if (type == null) {
+            components = componentProvider.getComponents(organization, parent);
+        } else if (parent == null) {
+            components = componentProvider.getComponents(organization, organization.getId(), type);
+        } else {
+            components = componentProvider.getComponents(organization, parent, type);
+        }
+        List<ComponentRepresentation> reps = new LinkedList<>();
+        for (ComponentModel component : components) {
+            if (name != null && !name.equals(component.getName())) continue;
+            ComponentRepresentation rep = null;
+            try {
+                rep = modelToRepresentation.toRepresentation(component, false, componentUtil);
+            } catch (Exception e) {
+                logger.error("Failed to get component list for component model" + component.getName() + "of organization " + organization.getName());
+                rep = modelToRepresentation.toRepresentationWithoutConfig(component);
+            }
+            reps.add(rep);
+        }
+        return reps;
+    }
+
+    @POST
+    @Path("/{organizationId}/components")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response createComponent(
+            @PathParam("organizationId") final String organizationId, ComponentRepresentation rep
+    ) {
+        OrganizationModel organization = organizationProvider.getOrganizationById(organizationId).orElseThrow(() -> new NotFoundException("Organization not found"));
+
+        try {
+            ComponentModel model = representationToModel.toModel(rep);
+            if (model.getParentId() == null) model.setParentId(organization.getId());
+
+            model = componentProvider.addComponentModel(organization, model);
+
+            return Response.created(uriInfo.getAbsolutePathBuilder().path(model.getId()).build()).build();
+        } catch (ComponentValidationException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(e.getMessage())
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
+    }
+
+    @GET
+    @Path("/{organizationId}/components/{componentId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ComponentRepresentation getComponent(
+            @PathParam("organizationId") final String organizationId,
+            @PathParam("componentId") String componentId
+    ) {
+        OrganizationModel organization = organizationProvider.getOrganizationById(organizationId).orElseThrow(() -> new NotFoundException("Organization not found"));
+
+        ComponentModel model = componentProvider.getComponent(organization, componentId);
+        if (model == null) {
+            throw new NotFoundException("Could not find component");
+        }
+
+        return modelToRepresentation.toRepresentation(model, false, componentUtil);
+    }
+
+    @PUT
+    @Path("/{organizationId}/components/{componentId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateComponent(
+            @PathParam("organizationId") final String organizationId,
+            @PathParam("componentId") String componentId,
+            ComponentRepresentation rep
+    ) {
+        OrganizationModel organization = organizationProvider.getOrganizationById(organizationId).orElseThrow(() -> new NotFoundException("Organization not found"));
+
+        try {
+            ComponentModel model = componentProvider.getComponent(organization, componentId);
+            if (model == null) {
+                throw new NotFoundException("Could not find component");
+            }
+            representationToModel.updateComponent(rep, model, false, componentUtil);
+
+            componentProvider.updateComponent(organization, model);
+            return Response.noContent().build();
+        } catch (ComponentValidationException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(e.getMessage())
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
+    }
+
+    @DELETE
+    @Path("/{organizationId}/components/{componentId}")
+    public void removeComponent(
+            @PathParam("organizationId") final String organizationId,
+            @PathParam("componentId") String componentId
+    ) {
+        OrganizationModel organization = organizationProvider.getOrganizationById(organizationId).orElseThrow(() -> new NotFoundException("Organization not found"));
+
+        ComponentModel model = componentProvider.getComponent(organization, componentId);
+        if (model == null) {
+            throw new NotFoundException("Could not find component");
+        }
+
+        componentProvider.removeComponent(organization, model);
+    }
 
 }

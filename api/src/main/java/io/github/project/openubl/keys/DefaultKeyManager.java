@@ -1,13 +1,13 @@
 /**
  * Copyright 2019 Project OpenUBL, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
- *
+ * <p>
  * Licensed under the Eclipse Public License - v 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -77,7 +77,7 @@ public class DefaultKeyManager implements KeyManager {
 
     private KeyWrapper getActiveKey(List<KeyProvider> providers, OrganizationModel organization, KeyUse use, String algorithm) {
         for (KeyProvider p : providers) {
-            for (KeyWrapper key : p .getKeys()) {
+            for (KeyWrapper key : p.getKeys()) {
                 if (key.getStatus().isActive() && matches(key, use, algorithm)) {
                     if (logger.isTraceEnabled()) {
                         logger.tracev("Active key found: organization={0} kid={1} algorithm={2} use={3}", organization.getName(), key.getKid(), algorithm, use.name());
@@ -120,7 +120,7 @@ public class DefaultKeyManager implements KeyManager {
     public List<KeyWrapper> getKeys(OrganizationModel organization, KeyUse use, String algorithm) {
         List<KeyWrapper> keys = new LinkedList<>();
         for (KeyProvider p : getProviders(organization)) {
-            for (KeyWrapper key : p .getKeys()) {
+            for (KeyWrapper key : p.getKeys()) {
                 if (key.getStatus().isEnabled() && matches(key, use, algorithm)) {
                     keys.add(key);
                 }
@@ -143,30 +143,31 @@ public class DefaultKeyManager implements KeyManager {
     }
 
     private List<KeyProvider> getProviders(OrganizationModel organization) {
-        List<KeyProvider> providers = providersMap.get(organization.getId());
-        if (providers == null) {
-            providers = new LinkedList<>();
+        List<KeyProvider> providers;
+//        List<KeyProvider> providers = providersMap.get(organization.getId());
+//        if (providers == null) {
+        providers = new LinkedList<>();
 
-            List<ComponentModel> components1 = componentProvider.getComponents(organization, organization.getId(), KeyProvider.class.getName());
-            List<ComponentModel> components = new LinkedList<>(components1);
-            components.sort(new ProviderComparator());
+        List<ComponentModel> components1 = componentProvider.getComponents(organization, organization.getId(), KeyProvider.class.getName());
+        List<ComponentModel> components = new LinkedList<>(components1);
+        components.sort(new ProviderComparator());
 
-            for (ComponentModel c : components) {
-                try {
-                    RsaKeyType rsaKeyType = RsaKeyType.findByProviderId(c.getProviderId()).orElseThrow(() -> new IllegalArgumentException("Invalid provider:" + c.getProviderId()));
-                    Annotation componentProviderLiteral = new ComponentProviderLiteral(KeyProvider.class);
-                    Annotation rsaKeyProviderLiteral = new RsaKeyProviderLiteral(rsaKeyType);
-                    KeyProviderFactory factory = keyProviderFactories.select(componentProviderLiteral, rsaKeyProviderLiteral).get();
+        for (ComponentModel c : components) {
+            try {
+                RsaKeyType rsaKeyType = RsaKeyType.findByProviderId(c.getProviderId()).orElseThrow(() -> new IllegalArgumentException("Invalid provider:" + c.getProviderId()));
+                Annotation componentProviderLiteral = new ComponentProviderLiteral(KeyProvider.class);
+                Annotation rsaKeyProviderLiteral = new RsaKeyProviderLiteral(rsaKeyType);
+                KeyProviderFactory factory = keyProviderFactories.select(componentProviderLiteral, rsaKeyProviderLiteral).get();
 
-                    KeyProvider provider = factory.create(organization, c);
-                    providers.add(provider);
-                } catch (Throwable t) {
-                    logger.errorv(t, "Failed to load provider {0}", c.getId());
-                }
+                KeyProvider provider = factory.create(organization, c);
+                providers.add(provider);
+            } catch (Throwable t) {
+                logger.errorv(t, "Failed to load provider {0}", c.getId());
             }
-
-            providersMap.put(organization.getId(), providers);
         }
+
+        providersMap.put(organization.getId(), providers);
+//        }
         return providers;
     }
 

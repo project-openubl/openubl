@@ -51,7 +51,7 @@ public class ModelToRepresentation {
         rep.setType(model.getType().toString().toLowerCase());
 
         rep.setDescription(model.getDescription());
-        rep.setUseMasterKeys(model.getUseCustomCertificates());
+        rep.setUseCustomCertificates(model.getUseCustomCertificates());
 
         // Settings
         OrganizationSettingsModel modelSettings = model.getSettings();
@@ -136,8 +136,8 @@ public class ModelToRepresentation {
             model.setDescription(rep.getDescription());
         }
 
-        if (rep.getUseMasterKeys() != null) {
-            model.setUseCustomCertificates(rep.getUseMasterKeys());
+        if (rep.getUseCustomCertificates() != null) {
+            model.setUseCustomCertificates(rep.getUseCustomCertificates());
         }
 
     }

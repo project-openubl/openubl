@@ -84,6 +84,7 @@ public class ServerInfoAdminResource {
         }
 
         info.getComponentTypes().put(KeyProvider.class.getName(), types);
+        info.getComponentTypes().put("keyProviders", types);
     }
 
 }

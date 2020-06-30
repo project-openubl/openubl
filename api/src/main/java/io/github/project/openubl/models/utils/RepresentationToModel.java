@@ -40,8 +40,8 @@ public class RepresentationToModel {
         if (rep.getDescription() != null) {
             model.setDescription(rep.getDescription().trim());
         }
-        if (rep.getUseMasterKeys() != null) {
-            model.setUseCustomCertificates(rep.getUseMasterKeys());
+        if (rep.getUseCustomCertificates() != null) {
+            model.setUseCustomCertificates(rep.getUseCustomCertificates());
         }
 
         // Settings

@@ -45,6 +45,7 @@ public class JpaOrganizationProvider implements OrganizationProvider {
         organizationEntity.setId(id);
         organizationEntity.setName(name);
         organizationEntity.setType(type);
+        organizationEntity.setUseCustomCertificates(true);
 
         OrganizationSettingsEntity settingsEntity = new OrganizationSettingsEntity();
         settingsEntity.setId(UUID.randomUUID().toString());

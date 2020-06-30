@@ -134,7 +134,6 @@ public class ServerBootstrap {
 
 
         OrganizationModel organization = organizationProvider.addOrganization(OrganizationModel.MASTER_ID, OrganizationModel.MASTER_ID, OrganizationType.master, orgSettingsMinData);
-        organization.setUseCustomCertificates(true);
 
 
         defaultKeyProviders.createProviders(organization);

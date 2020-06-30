@@ -28,7 +28,7 @@ public class OrganizationRepresentation {
     private String description;
 
     private String type;
-    private Boolean useMasterKeys;
+    private Boolean useCustomCertificates;
 
     @NotNull
     @Valid
@@ -274,12 +274,12 @@ public class OrganizationRepresentation {
         this.description = description;
     }
 
-    public Boolean getUseMasterKeys() {
-        return useMasterKeys;
+    public Boolean getUseCustomCertificates() {
+        return useCustomCertificates;
     }
 
-    public void setUseMasterKeys(Boolean useMasterKeys) {
-        this.useMasterKeys = useMasterKeys;
+    public void setUseCustomCertificates(Boolean useCustomCertificates) {
+        this.useCustomCertificates = useCustomCertificates;
     }
 
     public String getType() {
