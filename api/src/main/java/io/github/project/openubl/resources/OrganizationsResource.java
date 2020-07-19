@@ -23,6 +23,7 @@ import io.github.project.openubl.managers.OrganizationManager;
 import io.github.project.openubl.models.*;
 import io.github.project.openubl.models.utils.ModelToRepresentation;
 import io.github.project.openubl.models.utils.RepresentationToModel;
+import io.github.project.openubl.representations.idm.ErrorRepresentation;
 import io.github.project.openubl.representations.idm.OrganizationRepresentation;
 import io.github.project.openubl.representations.idm.PageRepresentation;
 import io.github.project.openubl.utils.ResourceUtils;
@@ -123,47 +124,6 @@ public class OrganizationsResource {
         return modelToRepresentation.toRepresentation(organization);
     }
 
-    //    @GET
-//    @Path("/search")
-//    public SearchResultsRepresentation<OrganizationRepresentation> searchOrganizations(
-//            @QueryParam("filterText") String filterText,
-//            @QueryParam("page") @DefaultValue("0") int page,
-//            @QueryParam("pageSize") @DefaultValue("10") int pageSize
-//    ) {
-//        SearchResultsModel<OrganizationModel> results;
-//        if (filterText != null && !filterText.trim().isEmpty()) {
-//            results = organizationProvider.searchOrganizations(filterText, page, pageSize);
-//        } else {
-//            results = organizationProvider.searchOrganizations(page, pageSize);
-//        }
-//
-//        return new SearchResultsRepresentation<>(
-//                results.getTotalSize(),
-//                results.getModels().stream()
-//                        .map(model -> modelToRepresentation.toRepresentation(model, true))
-//                        .collect(Collectors.toList())
-//        );
-//    }
-//
-//    @GET
-//    @Path("/all")
-//    public List<OrganizationRepresentation> getAllOrganizations() {
-//        return organizationProvider.getOrganizations(-1, -1)
-//                .stream()
-//                .map(model -> modelToRepresentation.toRepresentation(model, true))
-//                .collect(Collectors.toList());
-//    }
-//
-//    @GET
-//    @Path("/id-by-name/{organizationName}")
-//    public String getOrganizationIdByName(
-//            @PathParam("organizationName") String organizationName
-//    ) {
-//        return organizationProvider.getOrganizationByName(organizationName)
-//                .map(OrganizationModel::getId)
-//                .orElse(null);
-//    }
-//
     @GET
     @Path("/{organizationId}")
     public OrganizationRepresentation getOrganization(
@@ -286,7 +246,7 @@ public class OrganizationsResource {
             return Response.created(uriInfo.getAbsolutePathBuilder().path(model.getId()).build()).build();
         } catch (ComponentValidationException e) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(e.getMessage())
+                    .entity(new ErrorRepresentation(e.getMessage()))
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         }
@@ -330,7 +290,7 @@ public class OrganizationsResource {
             return Response.noContent().build();
         } catch (ComponentValidationException e) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(e.getMessage())
+                    .entity(new ErrorRepresentation(e.getMessage()))
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         }
