@@ -70,7 +70,7 @@ public class JpaWSTemplateProvider implements WSTemplateProvider {
         sortBy.forEach(f -> sort.and(f.getFieldName(), f.isAsc() ? Sort.Direction.Ascending : Sort.Direction.Descending));
 
         PanacheQuery<WSTemplateEntity> query = WSTemplateEntity.findAll(sort)
-                .range(pageBean.getOffset(), pageBean.getLimit());
+                .range(pageBean.getOffset(), pageBean.getOffset() + pageBean.getLimit() - 1);
 
         long count = query.count();
         List<WSTemplateModel> list = query.list().stream()
@@ -86,7 +86,7 @@ public class JpaWSTemplateProvider implements WSTemplateProvider {
 
         PanacheQuery<WSTemplateEntity> query = WSTemplateEntity
                 .find("From WSTemplateEntity as o where lower(o.name) like ?1", "%" + name.toLowerCase() + "%")
-                .range(pageBean.getOffset(), pageBean.getLimit());
+                .range(pageBean.getOffset(), pageBean.getOffset() + pageBean.getLimit() - 1);
 
         long count = query.count();
         List<WSTemplateModel> list = query.list().stream()

@@ -163,7 +163,7 @@ public class JpaOrganizationProvider implements OrganizationProvider {
         sortBy.forEach(f -> sort.and(f.getFieldName(), f.isAsc() ? Sort.Direction.Ascending : Sort.Direction.Descending));
 
         PanacheQuery<OrganizationEntity> query = OrganizationEntity.findAll(sort)
-                .range(pageBean.getOffset(), pageBean.getLimit());
+                .range(pageBean.getOffset(), pageBean.getOffset() + pageBean.getLimit() - 1);
 
         long count = query.count();
         List<OrganizationModel> list = query.list().stream()
@@ -179,7 +179,7 @@ public class JpaOrganizationProvider implements OrganizationProvider {
 
         PanacheQuery<OrganizationEntity> query = OrganizationEntity
                 .find("From OrganizationEntity as o where lower(o.name) like ?1", "%" + name.toLowerCase() + "%")
-                .range(pageBean.getOffset(), pageBean.getLimit());
+                .range(pageBean.getOffset(), pageBean.getOffset() + pageBean.getLimit() - 1);
 
         long count = query.count();
         List<OrganizationModel> list = query.list().stream()
