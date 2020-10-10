@@ -5,6 +5,7 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 @Entity
 @Table(name = "DOCUMENT")
@@ -22,6 +23,10 @@ public class DocumentEntity extends PanacheEntityBase {
     private OrganizationEntity organization;
 
     @NotNull
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdOn;
+
+//    @NotNull
     @Column(name = "FILE_STORAGE_ID")
     private String fileStorageId;
 
@@ -159,6 +164,14 @@ public class DocumentEntity extends PanacheEntityBase {
 
     public void setDocumentSenderStatus(String documentSenderStatus) {
         this.documentSenderStatus = documentSenderStatus;
+    }
+
+    public Date getCreatedOn() {
+        return createdOn;
+    }
+
+    public void setCreatedOn(Date createdOn) {
+        this.createdOn = createdOn;
     }
 }
 

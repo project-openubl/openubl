@@ -17,6 +17,12 @@
 package io.github.project.openubl.xml.xmlbuilder.client;
 
 import io.github.project.openubl.xmlbuilderlib.models.input.standard.invoice.InvoiceInputModel;
+import io.github.project.openubl.xmlbuilderlib.models.input.standard.note.creditNote.CreditNoteInputModel;
+import io.github.project.openubl.xmlbuilderlib.models.input.standard.note.debitNote.DebitNoteInputModel;
+import io.github.project.openubl.xmlbuilderlib.models.input.sunat.PerceptionInputModel;
+import io.github.project.openubl.xmlbuilderlib.models.input.sunat.RetentionInputModel;
+import io.github.project.openubl.xmlbuilderlib.models.input.sunat.SummaryDocumentInputModel;
+import io.github.project.openubl.xmlbuilderlib.models.input.sunat.VoidedDocumentInputModel;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import javax.ws.rs.*;
@@ -33,9 +39,69 @@ public interface XMLBuilderClient {
     @Path("/invoice/create")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_XML)
-    byte[] createInvoice(
+    byte[] createDocument(
             @HeaderParam(X_HEADER_PRIVATEKEY) String privateRsaKeyPem,
             @HeaderParam(X_HEADER_CERTIFICATEKEY) String certificatePem,
             InvoiceInputModel input
+    );
+
+    @POST
+    @Path("/credit-note/create")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_XML)
+    byte[] createDocument(
+            @HeaderParam(X_HEADER_PRIVATEKEY) String privateRsaKeyPem,
+            @HeaderParam(X_HEADER_CERTIFICATEKEY) String certificatePem,
+            CreditNoteInputModel input
+    );
+
+    @POST
+    @Path("/debit-note/create")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_XML)
+    byte[] createDocument(
+            @HeaderParam(X_HEADER_PRIVATEKEY) String privateRsaKeyPem,
+            @HeaderParam(X_HEADER_CERTIFICATEKEY) String certificatePem,
+            DebitNoteInputModel input
+    );
+
+    @POST
+    @Path("/perception/create")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_XML)
+    byte[] createDocument(
+            @HeaderParam(X_HEADER_PRIVATEKEY) String privateRsaKeyPem,
+            @HeaderParam(X_HEADER_CERTIFICATEKEY) String certificatePem,
+            PerceptionInputModel input
+    );
+
+    @POST
+    @Path("/retention/create")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_XML)
+    byte[] createDocument(
+            @HeaderParam(X_HEADER_PRIVATEKEY) String privateRsaKeyPem,
+            @HeaderParam(X_HEADER_CERTIFICATEKEY) String certificatePem,
+            RetentionInputModel input
+    );
+
+    @POST
+    @Path("/voided-document/create")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_XML)
+    byte[] createDocument(
+            @HeaderParam(X_HEADER_PRIVATEKEY) String privateRsaKeyPem,
+            @HeaderParam(X_HEADER_CERTIFICATEKEY) String certificatePem,
+            VoidedDocumentInputModel input
+    );
+
+    @POST
+    @Path("/summary-document/create")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_XML)
+    byte[] createDocument(
+            @HeaderParam(X_HEADER_PRIVATEKEY) String privateRsaKeyPem,
+            @HeaderParam(X_HEADER_CERTIFICATEKEY) String certificatePem,
+            SummaryDocumentInputModel input
     );
 }

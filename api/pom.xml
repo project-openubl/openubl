@@ -21,7 +21,7 @@
         <dependency>
             <groupId>io.github.project-openubl</groupId>
             <artifactId>xml-sender-core</artifactId>
-            <version>1.0.0.RC1</version>
+            <version>1.0.0.Final</version>
         </dependency>
 
         <dependency>
@@ -240,8 +240,8 @@
                                     </run>
                                 </image>
                                 <image>
-                                    <name>projectopenubl/xml-builder:1.1.0.RC1</name>
-                                    <alias>xml-builder</alias>
+                                    <name>projectopenubl/xbuilder-server:1.2.2.Final</name>
+                                    <alias>xbuilder-server</alias>
                                     <run>
                                         <ports>
                                             <port>8180:8080</port>
@@ -263,8 +263,8 @@
                                     </run>
                                 </image>
                                 <image>
-                                    <name>projectopenubl/xml-sender:1.0.0.RC1</name>
-                                    <alias>xml-sender</alias>
+                                    <name>projectopenubl/xsender-server:1.0.1.Final</name>
+                                    <alias>xsender-server</alias>
                                     <run>
                                         <links>
                                             <link>activemq-artemis</link>
